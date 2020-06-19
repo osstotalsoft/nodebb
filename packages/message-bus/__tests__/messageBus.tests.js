@@ -1,7 +1,7 @@
 jest.resetModules()
 process.env.Messaging__TopicPrefix = ''
-
 jest.mock('../transport')
+
 const messageBus = require('../index')
 const { publish, subscribe } = require('../transport')
 const serDes = require('../serDes')
