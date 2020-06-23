@@ -2,10 +2,10 @@ jest.resetModules()
 process.env.Messaging__TopicPrefix = ''
 jest.mock('../transport')
 
-const messageBus = require('../index')
+const messageBus = require('../messageBus')
 const { publish, subscribe } = require('../transport')
 const serDes = require('../serDes')
-const headers = require('../headers')
+const envelope = require('../envelope')
 
 const subscription = {
   unsubscribe: jest.fn(),
@@ -100,9 +100,7 @@ describe('MessageBus tests', () => {
     publish.mockResolvedValue()
     const ctx = {
       correlationId: 'some-correlation-id',
-      tenant: {
-        externalId: 'some-tenant-id',
-      },
+      tenantId: 'some-tenant-id',
     }
 
     //act
@@ -111,11 +109,9 @@ describe('MessageBus tests', () => {
     //assert
     expect(publish).toHaveBeenCalled()
     const publishedMsg = serDes.deSerialize(publish.mock.calls[0][1])
-    expect(publishedMsg.headers[headers.correlationId]).toBe(
+    expect(envelope.getCorrelationId(publishedMsg)).toBe(
       ctx.correlationId,
     )
-    expect(publishedMsg.headers[headers.tenantId]).toBe(
-      ctx.tenant.externalId,
-    )
+    expect(envelope.getTenantId(publishedMsg)).toBe(ctx.tenantId)
   })
 })
