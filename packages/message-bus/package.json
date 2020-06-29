@@ -2,7 +2,8 @@
   "name": "@totalsoft/message-bus",
   "version": "0.0.1",
   "description": "Opinionated, provider independent, messaging patterns",
-  "main": "index.js",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
   "type": "commonjs",
   "engines": {
     "node": ">=10.0.0"
