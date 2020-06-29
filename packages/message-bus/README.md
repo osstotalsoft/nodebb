@@ -49,4 +49,13 @@ const [topic, event] = await this.sendCommandAndReceiveEvent(
 )
 ```
 
+## Environment variables
+Messaging__Source="your_service_name"
+Messaging__TopicPrefix="messaging_env"
+NATS_URL="your_nats_url"
+NATS_CLUSTER="your_nats_cluster"
+NATS_CLIENT_ID="your_nats_client_id"
+NATS_Q_GROUP="your_q_group"
+NATS_DURABLE_NAME="durable"
+
 
