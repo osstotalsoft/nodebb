@@ -1,9 +1,6 @@
-const StartPosition = {
-    NEW_ONLY: 0,
-    LAST_RECEIVED: 1,
-    FIRST:2
+const subscriptionOptions = {
+  STREAM_PROCESSOR: 0,
+  PUB_SUB: 1,
 }
 
-module.exports = {
-    StartPosition
-}
+module.exports = subscriptionOptions

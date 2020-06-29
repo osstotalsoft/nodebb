@@ -30,7 +30,7 @@ const { messageBus, subscriptionOptions } = require('@totalsoft/message-bus');
 
 const handler = console.log
 
-const subscription = await messageBus.subscribe('USER_UPDATED', handler, { useQGroup: true, durable: true, startPosition: subscriptionOptions.StartPosition.FIRST })
+const subscription = await messageBus.subscribe('USER_UPDATED', handler, subscriptionOptions.STREAM_PROCESSOR)
 ```
 
 ## Request / Response over messaging

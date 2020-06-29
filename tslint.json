@@ -1,0 +1,19 @@
+{
+    "defaultSeverity": "error",
+    "extends": ["dtslint/dtslint.json"],
+    "linterOptions": {
+        "exclude": [
+            "node_modules/**"
+        ]
+    },
+    "jsRules": {},
+    "rules": {
+        "deprecation": true,
+        "file-name-casing": [true, "camel-case"],
+        "no-empty-interface": false,
+        "no-unnecessary-generics": true,
+        "no-redundant-jsdoc": false,
+        "interface-over-type-literal": false,
+        "semicolon": [false, "always"]
+    }
+}

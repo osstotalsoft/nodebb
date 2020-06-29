@@ -1,7 +1,7 @@
 const transport = require('./transport')
 const topicRegistry = require('./topicRegistry')
 const serDes = require('./serDes')
-const { StartPosition } = require('./subscriptionOptions')
+const subscriptionOptions = require('./subscriptionOptions')
 const envelope = require('./envelope')
 
 async function publish(
@@ -28,11 +28,7 @@ async function publish(
 async function subscribe(
   topic,
   handler,
-  opts = {
-    useQGroup: true,
-    durable: true,
-    startPosition: StartPosition.FIRST,
-  },
+  opts = subscriptionOptions.STREAM_PROCESSOR,
 ) {
   const fullTopicName = topicRegistry.getFullTopicName(topic)
   function h(msg) {
@@ -74,11 +70,7 @@ async function sendCommandAndReceiveEvent(
             resolveEventReceived([eventTopic, ev])
           }
         },
-        {
-          useQGroup: false,
-          durable: false,
-          startPosition: StartPosition.NEW_ONLY,
-        },
+        subscriptionOptions.PUB_SUB,
       ),
     ),
   )

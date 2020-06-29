@@ -1,7 +1,7 @@
 const nats = require('node-nats-streaming')
 const { uuid } = require('uuidv4')
 const Promise = require('bluebird')
-const { StartPosition } = require('../subscriptionOptions')
+const subscriptionOptions = require('../subscriptionOptions')
 const { Mutex } = require('async-mutex')
 
 const {
@@ -54,21 +54,18 @@ async function publish(subject, msg) {
 async function subscribe(subject, handler, opts) {
   const client = await connect()
   const natsOpts = client.subscriptionOptions()
-  if (opts && opts.durable) {
+  if (opts == subscriptionOptions.STREAM_PROCESSOR) {
     natsOpts.setDurableName(NATS_DURABLE_NAME)
-  }
-  if (opts && opts.startPosition == StartPosition.FIRST) {
     natsOpts.setDeliverAllAvailable()
-  } else if (opts && opts.startPosition == StartPosition.LAST_RECEIVED) {
-    natsOpts.setStartWithLastReceived()
-  } else if (opts && opts.startPosition == StartPosition.NEW_ONLY) {
+  } else {
     natsOpts.setStartAt(nats.StartPosition.NEW_ONLY)
   }
 
   const result = await new Promise((resolve, reject) => {
-    const subscription = opts && opts.useQGroup
-      ? client.subscribe(subject, NATS_Q_GROUP, natsOpts)
-      : client.subscribe(subject, natsOpts)
+    const subscription =
+      opts == subscriptionOptions.STREAM_PROCESSOR
+        ? client.subscribe(subject, NATS_Q_GROUP, natsOpts)
+        : client.subscribe(subject, natsOpts)
 
     subscription.on('message', handler)
 

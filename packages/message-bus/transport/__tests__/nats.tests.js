@@ -1,3 +1,5 @@
+const subscriptionOptions = require('../../subscriptionOptions')
+
 let natsClient, natsTransport
 
 const natsSubscription = {
@@ -6,6 +8,12 @@ const natsSubscription = {
       setTimeout(cb, 100)
     }
   }),
+}
+
+const natsSubscriptionOptions = {
+  setStartAt: jest.fn(),
+  setDurableName: jest.fn(),
+  setDeliverAllAvailable: jest.fn(),
 }
 
 const natsConnection = {
@@ -19,10 +27,8 @@ const natsConnection = {
       cb(null, 'ok')
     }, 100)
   }),
-  subscribe: jest.fn(() => {
-    return natsSubscription
-  }),
-  subscriptionOptions: jest.fn(()=>({}))
+  subscribe: jest.fn(() => natsSubscription),
+  subscriptionOptions: jest.fn(() => natsSubscriptionOptions),
 }
 
 describe('Nats tests', () => {
@@ -77,16 +83,44 @@ describe('Nats tests', () => {
     expect(natsConnection.publish).toHaveBeenCalled()
   })
 
-  test('subscribe', async () => {
+  test('subscribe PUB_SUB', async () => {
     //arrange
     const subject = 'subject'
     const handler = jest.fn()
 
     //act
-    await natsTransport.subscribe(subject, handler)
+    await natsTransport.subscribe(
+      subject,
+      handler,
+      subscriptionOptions.PUB_SUB,
+    )
 
     //assert
     expect(natsClient.connect).toHaveBeenCalled()
     expect(natsConnection.subscribe).toHaveBeenCalled()
+    expect(natsSubscriptionOptions.setStartAt.mock.calls[0][0]).toBe(
+      natsClient.StartPosition.NEW_ONLY,
+    )
+  })
+
+  test('subscribe STREAM_PROCESSOR', async () => {
+    //arrange
+    const subject = 'subject'
+    const handler = jest.fn()
+
+    //act
+    await natsTransport.subscribe(
+      subject,
+      handler,
+      subscriptionOptions.STREAM_PROCESSOR,
+    )
+
+    //assert
+    expect(natsClient.connect).toHaveBeenCalled()
+    expect(natsConnection.subscribe).toHaveBeenCalled()
+    expect(natsSubscriptionOptions.setDurableName).toHaveBeenCalled()
+    expect(
+      natsSubscriptionOptions.setDeliverAllAvailable,
+    ).toHaveBeenCalled()
   })
 })

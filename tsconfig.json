@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+      "module": "CommonJS",
+      "target": "es5",
+      "lib": ["es6"],
+      "moduleResolution": "node",
+      "forceConsistentCasingInFileNames": true,
+      "strict": true,
+      "noEmit": true,
+      "experimentalDecorators": true,
+      "baseUrl": "./",
+      "allowSyntheticDefaultImports": true,
+      "noErrorTruncation": true,
+      "allowJs": true,
+      "paths": {
+        "@totalsoft/message-bus": ["./packages/message-bus"]
+      }
+    },
+    "exclude": ["**/build/"]
+  }
