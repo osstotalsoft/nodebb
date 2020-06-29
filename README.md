@@ -14,12 +14,17 @@ lerna bootstrap
 
 ## Test
 ```javascript
-jest
+yarn test
+```
+
+## Ts lint
+```javascript
+yarn tslint
 ```
 
 ## Publish
 ```javascript
-lerna publish --contents build patch
-lerna publish --contents build minor
-lerna publish --contents build major
+lerna publish patch
+lerna publish minor
+lerna publish major
 ``` 
