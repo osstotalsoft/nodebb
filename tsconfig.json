@@ -13,7 +13,8 @@
       "noErrorTruncation": true,
       "allowJs": true,
       "paths": {
-        "@totalsoft/message-bus": ["./packages/message-bus"]
+        "@totalsoft/message-bus": ["./packages/message-bus"],
+        "@totalsoft/messaging-host": ["./packages/messaging-host"]
       }
     },
     "exclude": ["**/build/"]

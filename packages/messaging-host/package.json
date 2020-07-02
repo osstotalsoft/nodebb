@@ -1,0 +1,30 @@
+{
+  "name": "@totalsoft/messaging-host",
+  "version": "0.0.3",
+  "description": "Opinionated, provider independent, messaging patterns",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "scripts": {
+    "test": "jest --watchAll",
+    "tslint": "tslint -p tsconfig.json \"/**/*.ts\""
+  },
+  "author": "TotalSoft",
+  "homepage": "https://github.com/osstotalsoft/nodebb/tree/master/packages/messaging-host",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/osstotalsoft/nodebb.git",
+    "directory": "packages/messaging-host"
+  },
+  "license": "ISC",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@totalsoft/message-bus": "^0.0.3",
+    "uuidv4": "^6.0.9"
+  }
+}
