@@ -5,9 +5,11 @@ import {
   exceptionHandling,
 } from './middleware'
 
-export let messagingHost: {
+declare let messagingHost: {
   (): MessagingHost
   correlation: typeof correlation
   dispatcher: typeof dispatcher
   exceptionHandling: typeof exceptionHandling
 }
+
+export default messagingHost

@@ -1,3 +1,3 @@
 import { MessagingHostMiddleware } from '../messagingHost'
 
-export function exceptionHandling(): MessagingHostMiddleware
+export default function exceptionHandling(): MessagingHostMiddleware

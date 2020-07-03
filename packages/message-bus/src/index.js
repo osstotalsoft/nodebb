@@ -5,7 +5,7 @@ const envelope = require("./envelope")
 const serDes = require("./serDes")
 
 module.exports = {
-    messageBus,
+    ...messageBus,
     envelope,
     subscriptionOptions,
     transport,

@@ -1,4 +1,4 @@
-import { SubscriptionOptions } from '../subscriptionOptions'
+import SubscriptionOptions from '../subscriptionOptions'
 
 export interface Connection {}
 export type MessageHandler = (msg: string) => void

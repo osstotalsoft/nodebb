@@ -1,4 +1,6 @@
 export enum SubscriptionOptions {
-  STREAM_PROCESSOR,
+  STREAM_PROCESSOR = 0,
   PUB_SUB,
 }
+
+export default SubscriptionOptions

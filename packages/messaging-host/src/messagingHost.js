@@ -1,4 +1,4 @@
-const { messageBus } = require('@totalsoft/message-bus')
+const messageBus = require('@totalsoft/message-bus')
 const { empty, concat, run } = require('./pipeline')
 
 function messagingHost() {

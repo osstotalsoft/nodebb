@@ -1,6 +1,6 @@
 const mock = jest.genMockFromModule('@totalsoft/message-bus')
 
-mock.messageBus.__mockSubscriptionOnce = function __mockSubscriptionOnce(
+mock.__mockSubscriptionOnce = function __mockSubscriptionOnce(
   ...events
 ) {
   const subscription = {
@@ -8,7 +8,7 @@ mock.messageBus.__mockSubscriptionOnce = function __mockSubscriptionOnce(
     on: jest.fn(),
   }
 
-  mock.messageBus.subscribe.mockImplementationOnce((_topic, handler) => {
+  mock.subscribe.mockImplementationOnce((_topic, handler) => {
     events.forEach((ev, index) => {
       setTimeout(() => {
         handler(ev)
@@ -19,8 +19,8 @@ mock.messageBus.__mockSubscriptionOnce = function __mockSubscriptionOnce(
   })
 }
 
-mock.messageBus.__clearMocks = function __clearMocks() {
-  mock.messageBus.subscribe.mockClear();
+mock.__clearMocks = function __clearMocks() {
+  mock.subscribe.mockClear();
 };
 
 module.exports = mock

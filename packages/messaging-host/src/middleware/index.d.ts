@@ -1,9 +1,3 @@
-import { correlation } from './correlation'
-import { dispatcher } from './dispatcher'
-import { exceptionHandling } from './exceptionHandling'
-
-export {
-    correlation,
-    dispatcher,
-    exceptionHandling
-}
+export { default as correlation } from './correlation'
+export { default as dispatcher } from './dispatcher'
+export { default as exceptionHandling } from './exceptionHandling'

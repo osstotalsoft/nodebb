@@ -1,4 +1,4 @@
-import { envelope, subscriptionOptions } from '@totalsoft/message-bus'
+import { Envelope, subscriptionOptions } from '@totalsoft/message-bus'
 
 export type MessagingHostMiddleware = (
   ctx: MessagingHostContext,
@@ -9,7 +9,7 @@ export interface MessagingHost {
   use: (middleware: MessagingHostMiddleware) => MessagingHost
   subscribe: (
     topics: string[],
-    opts: subscriptionOptions.SubscriptionOptions,
+    opts: subscriptionOptions,
   ) => MessagingHost
   start: () => Promise<MessagingHost>
   stop: () => void
@@ -18,8 +18,8 @@ export interface MessagingHost {
 export interface MessagingHostContext {
   received: {
     topic: string
-    msg: envelope.Envelope<any>
+    msg: Envelope<any>
   }
 }
 
-export function messagingHost(): MessagingHost
+export default function messagingHost(): MessagingHost

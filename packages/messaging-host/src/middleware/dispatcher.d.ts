@@ -7,6 +7,6 @@ export interface MsgHandlers {
   [propName: string]: (ctx: MessagingHostContext) => Promise<void>
 }
 
-export function dispatcher(
+export default function dispatcher(
   handlers: MsgHandlers,
 ): MessagingHostMiddleware

@@ -1,5 +1,5 @@
 import { Context, Envelope, EnvelopeCustomizer } from './envelope'
-import { SubscriptionOptions } from './subscriptionOptions'
+import SubscriptionOptions from './subscriptionOptions'
 import { Subscription } from './transport'
 
 export function publish<T>(

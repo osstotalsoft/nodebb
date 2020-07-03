@@ -15,14 +15,16 @@ export interface Envelope<T> {
 
 export type EnvelopeCustomizer = (headers: Headers) => Headers
 
-export let envelope: {
+declare let envelope: {
   <T>(
     payload: T,
     ctx?: Context,
     envelopeCustomizer?: EnvelopeCustomizer,
   ): Envelope<T>
   headers: Headers
-  getCorrelationId: (msg: any) => any
-  getTenantId: (msg: any) => any
-  getSource: (msg: any) => any
+  getCorrelationId: (msg: Envelope<any>) => any
+  getTenantId: (msg: Envelope<any>) => any
+  getSource: (msg: Envelope<any>) => any
 }
+
+export default envelope

@@ -1,13 +1,12 @@
-import * as messageBus from './messageBus'
-import * as subscriptionOptions from './subscriptionOptions'
+export {
+  publish,
+  subscribe,
+  sendCommandAndReceiveEvent,
+} from './messageBus'
+
+import subscriptionOptions from './subscriptionOptions'
 import * as transport from './transport'
-import * as envelope from './envelope'
+import envelope, { Envelope } from './envelope'
 import * as serDes from './serDes'
 
-export {
-  messageBus,
-  subscriptionOptions,
-  transport,
-  envelope,
-  serDes,
-}
+export { subscriptionOptions, transport, envelope, serDes, Envelope }

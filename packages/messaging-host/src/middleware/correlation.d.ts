@@ -1,3 +1,3 @@
 import { MessagingHostMiddleware } from '../messagingHost'
 
-export function correlation(): MessagingHostMiddleware
+export default function correlation(): MessagingHostMiddleware

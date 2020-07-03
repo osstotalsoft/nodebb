@@ -1,7 +1,7 @@
 // eslint-disable-next-line node/no-extraneous-require
 require('jest-extended')
 const messagingHost = require('../messagingHost')
-const { messageBus } = require('@totalsoft/message-bus')
+const messageBus = require('@totalsoft/message-bus')
 
 describe('MessagingHost tests', () => {
   beforeEach(() => {
