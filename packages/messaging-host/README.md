@@ -1,61 +1,58 @@
 # messaging-host
-Provider independent, high-level, opinionated messaging library
+Infrastructure for event-driven stream processing microservices
 
 ## Installation
 ```javascript
 npm install @totalsoft/messaging-host
 ```
 
-## Philosophy
-The message bus is a high level api for messaging communication that abstracts away from its consumers some of the involving complexity like:
- - Messaging transport (Nats, Kafka, etc)
- - Message SerDes
- - Topic Registry
- - Message envelope
+## why use Event-Driven Architecture
+An event-driven architecture offers several advantages over REST, which include:
 
-## Publish
+- Asynchronous – event-based architectures are asynchronous without blocking. This allows resources to move freely to the next task once their unit of work is complete, without worrying about what happened before or will happen next. They also allow events to be queued or buffered which prevents consumers from putting back pressure on producers or blocking them.
+
+- Loose Coupling – services don’t need (and shouldn’t have) knowledge of, or dependencies on other services. When using events, services operate independently, without knowledge of other services, including their implementation details and transport protocol. Services under an event model can be updated, tested, and deployed independently and more easily.
+
+- Easy Scaling – Since the services are decoupled under an event-driven architecture, and as services typically perform only one task, tracking down bottlenecks to a specific service, and scaling that service (and only that service) becomes easy.
+
+- Recovery support – An event-driven architecture with a queue can recover lost work by “replaying” events from the past. This can be valuable to prevent data loss when a consumer needs to recover.
+
+Of course, event-driven architectures have drawbacks as well. They are easy to over-engineer by separating concerns that might be simpler when closely coupled; can require a significant upfront investment; and often result in additional complexity in infrastructure, service contracts or schemas, polyglot build systems, and dependency graphs.
+
+Perhaps the most significant drawback and challenge is data and transaction management. Because of their asynchronous nature, event-driven models must carefully handle inconsistent data between services, incompatible versions, watch for duplicate events, and typically do not support ACID transactions, instead supporting eventual consistency which can be more difficult to track or debug.
+
+Even with these drawbacks, an event-driven architecture is usually the better choice for enterprise-level microservice systems. The pros—scalable, loosely coupled, dev-ops friendly design—outweigh the cons.
+
+
+## Sample usage
 ```javascript
-const { messageBus } = require('@totalsoft/message-bus');
+const messagingHost = require("@totalsoft/messaging-host")
+const { topics } = require("./myConsts")
+const { handleUserPhoneChanged, handleUserEmailChanged } = require("./myEventHandlers")
 
-const userUpdatedEvent = { userId: 5, userName:'rpopovici' }
-const correlationId = 'some-correlation-id'
-const tenantId = 'some-tenant-id'
+const msgHandlers = {
+    [topics.USER_PHONE_CHANGED]: handleUserPhoneChanged,
+    [topics.USER_EMAIL_CHANGED]: handleUserEmailChanged
+}
 
-await messageBus.publish('USER_UPDATED', userUpdatedEvent, {correlationId, tenantId});
+messagingHost()
+    .subscribe([
+        topics.USER_PHONE_CHANGED,
+        topics.USER_EMAIL_CHANGED
+    ])
+    .use(messagingHost.exceptionHandling())
+    .use(messagingHost.correlation())
+    .use(messagingHost.dispatcher(msgHandlers))
+    .start()
+```
+```terminal
+📌  Subscribed to topic LSNG_RADU.ch.events.UserManagement.PublishedLanguage.Events.PhoneNumberChanged
+index.js:42
+📌  Subscribed to topic LSNG_RADU.ch.events.UserManagement.PublishedLanguage.Events.EmailChanged
+index.js:42
+🚀  Messaging host ready
 ```
 
-## Subscribe
-```javascript
-const { messageBus, subscriptionOptions } = require('@totalsoft/message-bus');
 
-const handler = console.log
-
-const subscription = await messageBus.subscribe('USER_UPDATED', handler, subscriptionOptions.STREAM_PROCESSOR)
-```
-
-## Request / Response over messaging
-```javascript
-const { messageBus } = require('@totalsoft/message-bus');
-
-const correlationId = 'some-correlation-id'
-const tenantId = 'some-tenant-id'
-
-const updateUserCommand = { userId: 5, userName:'rpopovici' }
-
-const [topic, event] = await this.sendCommandAndReceiveEvent(
-    'UPDATE_USER', updateUserCommand,
-    ['USER_UPDATED', 'UPDATE_USER_FAILED'],
-    {correlationId, tenantId}
-)
-```
-
-## Environment variables
-Messaging__Source="your_service_name"
-Messaging__TopicPrefix="messaging_env"
-NATS_URL="your_nats_url"
-NATS_CLUSTER="your_nats_cluster"
-NATS_CLIENT_ID="your_nats_client_id"
-NATS_Q_GROUP="your_q_group"
-NATS_DURABLE_NAME="durable"
 
 
