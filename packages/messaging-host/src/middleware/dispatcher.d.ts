@@ -7,6 +7,9 @@ export interface MsgHandlers {
   [propName: string]: (ctx: MessagingHostContext) => Promise<void>
 }
 
-export default function dispatcher(
-  handlers: MsgHandlers,
-): MessagingHostMiddleware
+declare let dispatcher: {
+  (handlers: MsgHandlers): MessagingHostMiddleware
+  mergeHandlers: (msgHandlers: MsgHandlers[]) => MsgHandlers
+}
+
+export default dispatcher

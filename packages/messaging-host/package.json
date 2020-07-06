@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@totalsoft/message-bus": "^0.0.3",
+    "ramda": "^0.27.0",
     "uuidv4": "^6.0.9"
   }
 }

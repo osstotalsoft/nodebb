@@ -5,6 +5,7 @@
 
 ## The blocks
   - [`message-bus`](./packages/message-bus#readme)
+  - [`messaging-host`](./packages/messaging-host#readme)
 
 ## Bootstrap
 ```javascript

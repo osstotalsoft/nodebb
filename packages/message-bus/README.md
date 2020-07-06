@@ -32,6 +32,8 @@ const handler = console.log
 
 const subscription = await messageBus.subscribe('USER_UPDATED', handler, messageBus.subscriptionOptions.STREAM_PROCESSOR)
 ```
+The last optional parameter *subscription options*  is a high level configuration of the subscription type. You can opt in for the default value of STREAM_PROCESSOR (durable at-least-once messaging) or PUB_SUB (simple lightweight pub-sub)
+
 
 ## Request / Response over messaging
 ```javascript
