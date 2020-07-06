@@ -1,19 +1,19 @@
 # message-bus
 Provider independent, high-level, opinionated messaging library
 
-## Installation
+## installation
 ```javascript
 npm install @totalsoft/message-bus
 ```
 
-## Philosophy
+## philosophy
 The message bus is a high level api for messaging communication that abstracts away from its consumers some of the involving complexity like:
  - Messaging transport (Nats, Kafka, etc)
  - Message SerDes
  - Topic Registry
  - Message envelope
 
-## Publish
+## publish
 ```javascript
 const messageBus = require('@totalsoft/message-bus');
 
@@ -24,7 +24,7 @@ const tenantId = 'some-tenant-id'
 await messageBus.publish('USER_UPDATED', userUpdatedEvent, {correlationId, tenantId});
 ```
 
-## Subscribe
+## subscribe
 ```javascript
 const messageBus = require('@totalsoft/message-bus');
 
@@ -35,7 +35,7 @@ const subscription = await messageBus.subscribe('USER_UPDATED', handler, message
 The last optional parameter *subscription options*  is a high level configuration of the subscription type. You can opt in for the default value of STREAM_PROCESSOR (durable at-least-once messaging) or PUB_SUB (simple lightweight pub-sub)
 
 
-## Request / Response over messaging
+## request / response over messaging
 ```javascript
 const messageBus = require('@totalsoft/message-bus');
 
@@ -51,7 +51,7 @@ const [topic, event] = await messageBus.sendCommandAndReceiveEvent(
 )
 ```
 
-## Environment variables
+## environment variables
 Messaging__Source="your_service_name"
 Messaging__TopicPrefix="messaging_env"
 NATS_URL="your_nats_url"
