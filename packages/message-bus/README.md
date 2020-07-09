@@ -52,8 +52,8 @@ const [topic, event] = await messageBus.sendCommandAndReceiveEvent(
 ```
 
 ## environment variables
-Messaging__Source="your_service_name"
 Messaging__TopicPrefix="messaging_env"
+Messaging__Source="your_service_name"
 NATS_URL="your_nats_url"
 NATS_CLUSTER="your_nats_cluster"
 NATS_CLIENT_ID="your_nats_client_id"
