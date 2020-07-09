@@ -1,4 +1,4 @@
-const subscriptionOptions = require('../../subscriptionOptions')
+const { SubscriptionOptions } = require('../../subscriptionOptions')
 
 describe('Nats tests', () => {
   beforeEach(() => {
@@ -69,7 +69,7 @@ describe('Nats tests', () => {
     await natsTransport.subscribe(
       subject,
       handler,
-      subscriptionOptions.PUB_SUB,
+      SubscriptionOptions.PUB_SUB,
     )
 
     //assert
@@ -92,7 +92,7 @@ describe('Nats tests', () => {
     await natsTransport.subscribe(
       subject,
       handler,
-      subscriptionOptions.STREAM_PROCESSOR,
+      SubscriptionOptions.STREAM_PROCESSOR,
     )
 
     //assert

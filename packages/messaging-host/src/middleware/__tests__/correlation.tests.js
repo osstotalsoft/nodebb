@@ -1,5 +1,5 @@
-const messagingHost = require('../../messagingHost')
-const correlation = require('../correlation')
+const { messagingHost } = require('../../messagingHost')
+const { correlation } = require('../correlation')
 const { envelope } = require('@totalsoft/message-bus')
 
 describe('correlation tests:', () => {

@@ -1,8 +1,8 @@
 const transport = require('./transport')
 const topicRegistry = require('./topicRegistry')
 const serDes = require('./serDes')
-const subscriptionOptions = require('./subscriptionOptions')
-const envelope = require('./envelope')
+const { SubscriptionOptions } = require('./subscriptionOptions')
+const { envelope } = require('./envelope')
 
 async function publish(
   topic,
@@ -28,7 +28,7 @@ async function publish(
 async function subscribe(
   topic,
   handler,
-  opts = subscriptionOptions.STREAM_PROCESSOR,
+  opts = SubscriptionOptions.STREAM_PROCESSOR,
 ) {
   const fullTopicName = topicRegistry.getFullTopicName(topic)
   function h(msg) {
@@ -66,11 +66,14 @@ async function sendCommandAndReceiveEvent(
       subscribe(
         eventTopic,
         (ev) => {
-          if (envelope.getCorrelationId(ev) == envelope.getCorrelationId(publishedMsg)) {
+          if (
+            envelope.getCorrelationId(ev) ==
+            envelope.getCorrelationId(publishedMsg)
+          ) {
             resolveEventReceived([eventTopic, ev])
           }
         },
-        subscriptionOptions.PUB_SUB,
+        SubscriptionOptions.PUB_SUB,
       ),
     ),
   )

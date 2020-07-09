@@ -11,9 +11,7 @@ export interface MsgHandlers {
  * Message dispatcher middleware
  * @see https://github.com/osstotalsoft/nodebb/tree/master/packages/messaging-host#built-in-dispatcher-middleware
  */
-declare let dispatcher: {
+export let dispatcher: {
   (handlers: MsgHandlers): MessagingHostMiddleware
   mergeHandlers: (msgHandlers: MsgHandlers[]) => MsgHandlers
 }
-
-export default dispatcher

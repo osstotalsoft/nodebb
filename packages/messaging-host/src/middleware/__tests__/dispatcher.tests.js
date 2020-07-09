@@ -1,5 +1,5 @@
-const dispatcher = require('../dispatcher')
-const messagingHost = require('../../messagingHost')
+const { dispatcher } = require('../dispatcher')
+const { messagingHost } = require('../../messagingHost')
 
 describe('dispatcher tests:', () => {
   it('should dispatch msg: ', async () => {

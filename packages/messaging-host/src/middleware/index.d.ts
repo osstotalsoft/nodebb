@@ -1,3 +1,3 @@
-export { default as correlation } from './correlation'
-export { default as dispatcher } from './dispatcher'
-export { default as exceptionHandling } from './exceptionHandling'
+export * from './correlation'
+export * from './dispatcher'
+export * from './exceptionHandling'

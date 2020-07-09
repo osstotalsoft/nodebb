@@ -11,4 +11,4 @@ const correlation = () => async (ctx, next) => {
   await next()
 }
 
-module.exports = correlation
+module.exports = { correlation }

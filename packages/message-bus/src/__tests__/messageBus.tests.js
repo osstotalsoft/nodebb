@@ -5,7 +5,7 @@ jest.mock('../transport')
 const messageBus = require('../messageBus')
 const { publish, subscribe } = require('../transport')
 const serDes = require('../serDes')
-const envelope = require('../envelope')
+const { envelope } = require('../envelope')
 
 const subscription = {
   unsubscribe: jest.fn(),

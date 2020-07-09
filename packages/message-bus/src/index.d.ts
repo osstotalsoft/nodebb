@@ -4,14 +4,14 @@ export {
   sendCommandAndReceiveEvent,
 } from './messageBus'
 
-import subscriptionOptions from './subscriptionOptions'
+import { SubscriptionOptions } from './subscriptionOptions'
 import * as transport from './transport'
-import envelope, { Envelope } from './envelope'
+import { envelope, Envelope } from './envelope'
 import * as serDes from './serDes'
 import * as topicRegistry from './topicRegistry'
 
 export {
-  subscriptionOptions,
+  SubscriptionOptions,
   transport,
   envelope,
   serDes,

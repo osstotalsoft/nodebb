@@ -1,11 +1,11 @@
 export interface Context {
   correlationId?: any
   tenantId?: any
-  [propName: string]: any;
+  [propName: string]: any
 }
 
 export interface Headers {
-  [propName: string]: any;
+  [propName: string]: any
 }
 
 export interface Envelope<T> {
@@ -15,7 +15,7 @@ export interface Envelope<T> {
 
 export type EnvelopeCustomizer = (headers: Headers) => Headers
 
-declare let envelope: {
+export let envelope: {
   <T>(
     payload: T,
     ctx?: Context,
@@ -26,5 +26,3 @@ declare let envelope: {
   getTenantId: (msg: Envelope<any>) => any
   getSource: (msg: Envelope<any>) => any
 }
-
-export default envelope

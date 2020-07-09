@@ -1,5 +1,5 @@
-const exceptionHandling = require('../exceptionHandling')
-const messagingHost = require('../../messagingHost')
+const { exceptionHandling } = require('../exceptionHandling')
+const { messagingHost } = require('../../messagingHost')
 
 describe('exceptionHandling tests:', () => {
   it('should handle exceptions: ', async () => {

@@ -47,4 +47,4 @@ function mergeHandlers(xHandlers, yHandlers) {
 
 dispatcher.mergeHandlers = reduce(mergeHandlers, {})
 
-module.exports = dispatcher
+module.exports = { dispatcher }

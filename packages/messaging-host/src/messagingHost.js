@@ -48,8 +48,8 @@ function messagingHost() {
     subscribe,
     start,
     stop,
-    _contextFactory
+    _contextFactory,
   }
 }
 
-module.exports = messagingHost
+module.exports = { messagingHost }

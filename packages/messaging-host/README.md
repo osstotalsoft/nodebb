@@ -26,7 +26,7 @@ Even with these drawbacks, an event-driven architecture is usually the better ch
 
 ## sample usage
 ```javascript
-const messagingHost = require("@totalsoft/messaging-host")
+const { messagingHost, exceptionHandling, correlation, dispatcher } = require("@totalsoft/messaging-host")
 const { topics } = require("./myConsts")
 const { handleUserPhoneChanged, handleUserEmailChanged } = require("./myEventHandlers")
 
@@ -40,9 +40,9 @@ messagingHost()
         topics.USER_PHONE_CHANGED,
         topics.USER_EMAIL_CHANGED
     ])
-    .use(messagingHost.exceptionHandling())
-    .use(messagingHost.correlation())
-    .use(messagingHost.dispatcher(msgHandlers))
+    .use(exceptionHandling())
+    .use(correlation())
+    .use(mdispatcher(msgHandlers))
     .start()
 ```
 ```terminal
@@ -56,13 +56,13 @@ index.js:42
 ## subscriptions
 The subscribe function takes an array of topics and an optional subscription options parameter. You can call subscribe multiple times with different subscription options.
 ```javascript
-const messagingHost = require("@totalsoft/messaging-host")
+const { messagingHost, SubscriptionOptions } = require("@totalsoft/messaging-host")
 ...
 messagingHost()
     .subscribe([topics.USER_PHONE_CHANGED],
-        messagingHost.subscriptionOptions.STREAM_PROCESSOR)
+        SubscriptionOptions.STREAM_PROCESSOR)
     .subscribe([topics.USER_PHONE_CHANGED],
-        messagingHost.subscriptionOptions.PUB_SUB)
+        SubscriptionOptions.PUB_SUB)
     ...
     .start()
 ```
@@ -95,7 +95,7 @@ export interface Headers {
 ```
 You hook the middlewares with the *use* func:
 ```javascript
-const messagingHost = require("@totalsoft/messaging-host")
+const { messagingHost } = require("@totalsoft/messaging-host")
 
 messagingHost()
     .subscribe([...])
@@ -110,30 +110,21 @@ You can mix built-in provided middlewares with custom ones.
 The messaging host provides some built-in middlewares
 ```javascript
 messagingHost()
-    .subscribe([...])
-    .use(messagingHost.exceptionHandling())
-    .use(messagingHost.correlation())
-    .use(messagingHost.dispatcher(msgHandlers))
-    .start()
+    .use(exceptionHandling())
+    .use(correlation())
+    .use(dispatcher(msgHandlers))
 ```
 ### built-in exception handling middleware
 ```javascript
 messagingHost()
-    .subscribe([...])
-    .use(messagingHost.exceptionHandling())
-    ...
-    .start()
+    .use(exceptionHandling())
 ```
 Typically configured very early in the pipeline, it swallows exceptions and logs them to the console
 
 ### built-in correlation middleware
 ```javascript
 messagingHost()
-    .subscribe([...])
-    ...
     .use(correlation())
-    ...
-    .start()
 ```
 Typically configured early in the pipeline, it has the role to fetch the correlation id from the received message or create a new one if the incomming message does not have one. It will persist the correlation id in the context obj.
 
@@ -144,23 +135,18 @@ const msgHandlers = {
     [topics.USER_EMAIL_CHANGED]: handleUserEmailChanged
 }
 messagingHost()
-    .subscribe([...])
-    ...
-    .use(messagingHost.dispatcher(msgHandlers))
-    .start()
+    .use(dispatcher(msgHandlers))
 ```
 This middleware acts as a message dispatcher (broker) that delivers messages to handlers based a provided *handlers configuration*
 
 You can merge multiple message handler configuration using the utility fn *mergeHandlers*
 ```javascript
-const msgHandlers = messagingHost.dispatcher.mergeHandlers([
+const msgHandlers = dispatcher.mergeHandlers([
     someMessageHandlers, 
     otherMessageHandlers
 ])
 messagingHost()
-    ...
-    .use(messagingHost.dispatcher(msgHandlers))
-    ...
+    .use(dispatcher(msgHandlers))
 ```
 
 

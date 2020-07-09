@@ -1,46 +1,48 @@
 const { uuid } = require('uuidv4')
 
-const correlationId = "nbb-correlationId"
-const source = "nbb-source"
-const tenantId = "nbb-tenantId"
+const correlationId = 'nbb-correlationId'
+const source = 'nbb-source'
+const tenantId = 'nbb-tenantId'
 
 const headers = {
-    correlationId,
-    source,
-    tenantId
+  correlationId,
+  source,
+  tenantId,
 }
 
-function envelope(payload, ctx = null, envelopeCustomizer = null){
-    const messagingSource = process.env.Messaging__Source || ''
-    const correlationId = (ctx && ctx.correlationId) || uuid()
-    const tenantId = ctx && ctx.tenantId
+function envelope(payload, ctx = null, envelopeCustomizer = null) {
+  const messagingSource = process.env.Messaging__Source || ''
+  const correlationId = (ctx && ctx.correlationId) || uuid()
+  const tenantId = ctx && ctx.tenantId
 
-    const platformHeaders = {
-        [headers.correlationId]: correlationId,
-        [headers.tenantId]: tenantId,
-        [headers.source]: messagingSource
-    }
+  const platformHeaders = {
+    [headers.correlationId]: correlationId,
+    [headers.tenantId]: tenantId,
+    [headers.source]: messagingSource,
+  }
 
-    const envelope = {
-        payload,
-        headers: envelopeCustomizer ? envelopeCustomizer(platformHeaders) : platformHeaders
-    }
+  const envelope = {
+    payload,
+    headers: envelopeCustomizer
+      ? envelopeCustomizer(platformHeaders)
+      : platformHeaders,
+  }
 
-    return envelope
+  return envelope
 }
 
 envelope.headers = headers
 
-envelope.getCorrelationId = function getCorrelationId(msg){
-    return msg.headers[headers.correlationId]
+envelope.getCorrelationId = function getCorrelationId(msg) {
+  return msg.headers[headers.correlationId]
 }
 
-envelope.getTenantId = function getTenantId(msg){
-    return msg.headers[headers.tenantId]
+envelope.getTenantId = function getTenantId(msg) {
+  return msg.headers[headers.tenantId]
 }
 
-envelope.getSource = function getSource(msg){
-    return msg.headers[headers.source]
+envelope.getSource = function getSource(msg) {
+  return msg.headers[headers.source]
 }
 
-module.exports = envelope
+module.exports = { envelope }

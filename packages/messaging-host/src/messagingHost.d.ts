@@ -1,11 +1,11 @@
-import { Envelope, subscriptionOptions } from '@totalsoft/message-bus'
+import { Envelope, SubscriptionOptions } from '@totalsoft/message-bus'
 
 export type MessagingHostMiddleware = (
   ctx: MessagingHostContext,
   next: MessagingHostMiddleware,
 ) => Promise<void>
 
-export interface MessagingHost {
+export type MessagingHost = {
   /**
    * Hooks a middleware in the message processing pipeline
    * @see https://github.com/osstotalsoft/nodebb/tree/master/packages/messaging-host#middleware-func
@@ -17,17 +17,17 @@ export interface MessagingHost {
    */
   subscribe: (
     topics: string[],
-    opts: subscriptionOptions,
+    opts: SubscriptionOptions,
   ) => MessagingHost
   start: () => Promise<MessagingHost>
   stop: () => void
 }
 
-export interface MessagingHostContext {
+export type MessagingHostContext = {
   received: {
     topic: string
     msg: Envelope<any>
   }
 }
 
-export default function messagingHost(): MessagingHost
+export function messagingHost(): MessagingHost
