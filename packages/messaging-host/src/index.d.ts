@@ -1,4 +1,8 @@
-import { MessagingHost } from './messagingHost'
+import {
+  MessagingHost,
+  MessagingHostMiddleware,
+  MessagingHostContext,
+} from './messagingHost'
 import {
   correlation,
   dispatcher,
@@ -15,3 +19,8 @@ declare let messagingHost: {
 }
 
 export default messagingHost
+export {
+  MessagingHost,
+  MessagingHostMiddleware,
+  MessagingHostContext,
+}
