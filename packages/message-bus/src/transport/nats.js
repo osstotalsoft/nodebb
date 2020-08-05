@@ -1,5 +1,5 @@
 const nats = require('node-nats-streaming')
-const { uuid } = require('uuidv4')
+const { v4 } = require('uuid')
 const Promise = require('bluebird')
 const { SubscriptionOptions } = require('../subscriptionOptions')
 const { Mutex } = require('async-mutex')
@@ -12,7 +12,7 @@ const {
   NATS_DURABLE_NAME,
 } = process.env
 
-const clientID = `${NATS_CLIENT_ID}-${uuid()}`
+const clientID = `${NATS_CLIENT_ID}-${v4()}`
 const connectionMutex = new Mutex()
 let connection = null
 

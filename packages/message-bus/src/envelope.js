@@ -1,4 +1,4 @@
-const { uuid } = require('uuidv4')
+const { v4 } = require('uuid')
 
 const correlationId = 'nbb-correlationId'
 const source = 'nbb-source'
@@ -12,7 +12,7 @@ const headers = {
 
 function envelope(payload, ctx = null, envelopeCustomizer = null) {
   const messagingSource = process.env.Messaging__Source || ''
-  const correlationId = (ctx && ctx.correlationId) || uuid()
+  const correlationId = (ctx && ctx.correlationId) || v4()
   const tenantId = ctx && ctx.tenantId
 
   const platformHeaders = {
