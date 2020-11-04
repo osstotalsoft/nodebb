@@ -73,6 +73,8 @@ async function subscribe(subject, handler, opts) {
   if (opts == SubscriptionOptions.STREAM_PROCESSOR) {
     natsOpts.setDurableName(NATS_DURABLE_NAME)
     natsOpts.setDeliverAllAvailable()
+    natsOpts.setMaxInFlight(1)
+    natsOpts.setManualAckMode(true)
   } else {
     natsOpts.setStartAt(nats.StartPosition.NEW_ONLY)
   }
@@ -82,7 +84,12 @@ async function subscribe(subject, handler, opts) {
       ? client.subscribe(subject, NATS_Q_GROUP, natsOpts)
       : client.subscribe(subject, natsOpts)
 
-  subscription.on('message', handler)
+  subscription.on('message', (msg) => {
+    handler(msg)
+    if (natsOpts.manualAcks) {
+      msg.ack()
+    }
+  })
   subscription.on('error', (err) => {
     console.error(
       `Nats subscription error for subject ${subject}.`,
