@@ -1,0 +1,31 @@
+{
+  "name": "@totalsoft/knex-global-query-filters",
+  "version": "0.0.9",
+  "description": "Knex global query filters",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "scripts": {
+    "test": "jest --watchAll",
+    "tslint": "tslint -p tsconfig.json \"/**/*.ts\""
+  },
+  "author": "TotalSoft",
+  "homepage": "https://github.com/osstotalsoft/nodebb/tree/master/packages/knex-global-query-filters",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/osstotalsoft/nodebb.git",
+    "directory": "packages/knex-global-query-filters"
+  },
+  "license": "ISC",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "knex": "^0.21.11",
+    "mssql": "^6.2.3",
+    "ramda": "^0.27.1"
+  }
+}
