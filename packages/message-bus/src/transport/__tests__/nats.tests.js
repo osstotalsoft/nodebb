@@ -1,5 +1,11 @@
 const { SubscriptionOptions } = require('../../subscriptionOptions')
 
+global.console = {
+  log: jest.fn(),
+  info: jest.fn(),
+  error: jest.fn()
+}
+
 describe('Nats tests', () => {
   beforeEach(() => {
     jest.resetModules()
@@ -13,11 +19,26 @@ describe('Nats tests', () => {
     const natsTransport = require('../nats')
 
     //act
-    const result = await natsTransport.connect()
+    const connection = await natsTransport.connect()
 
     //assert
     expect(natsClient.connect).toHaveBeenCalled()
-    expect(result).toBe(natsClient.__connection)
+    expect(connection).toBe(natsClient.__connection)
+  })
+
+  test('connection errors are logged to console', async () => {
+    //arrange
+    const natsClient = require('node-nats-streaming')
+    const natsTransport = require('../nats')
+    const err = new Error("Nats client exception")
+
+    //act
+    await natsTransport.connect()
+    natsClient.__emitConnectionError(err)
+
+
+    //assert
+    expect(global.console.error).toHaveBeenCalledWith('Nats connection error:', err)
   })
 
   test('concurent connect calls', async () => {

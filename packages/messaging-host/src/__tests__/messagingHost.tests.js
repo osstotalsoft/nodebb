@@ -3,6 +3,12 @@ require('jest-extended')
 const { messagingHost } = require('../messagingHost')
 const messageBus = require('@totalsoft/message-bus')
 
+global.console = {
+  log: jest.fn(),
+  info: jest.fn(),
+  error: jest.fn()
+}
+
 describe('MessagingHost tests', () => {
   beforeEach(() => {
     messageBus.__clearMocks()

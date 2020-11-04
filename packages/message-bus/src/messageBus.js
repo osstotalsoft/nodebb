@@ -32,7 +32,7 @@ async function subscribe(
 ) {
   const fullTopicName = topicRegistry.getFullTopicName(topic)
   function h(msg) {
-    console.info(`✉   Received a message from topic ${fullTopicName}`)
+    console.info(`✉   Received a message from ${fullTopicName}`)
     const data = serDes.deSerialize(msg.getData())
     return handler(data)
   }
@@ -42,11 +42,7 @@ async function subscribe(
     h,
     opts,
   )
-  console.info(`📌  Subscribed to topic ${fullTopicName}`)
-
-  subscription.on('unsubscribed', () => {
-    console.info(`📌  Unsubscribed from topic ${fullTopicName}`)
-  })
+  console.info(`📌  Subscribed to ${fullTopicName}`)
 
   return subscription
 }

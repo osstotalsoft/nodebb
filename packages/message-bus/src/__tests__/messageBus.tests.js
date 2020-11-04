@@ -2,6 +2,12 @@ jest.resetModules()
 process.env.Messaging__TopicPrefix = ''
 jest.mock('../transport')
 
+global.console = {
+  log: jest.fn(),
+  info: jest.fn(),
+  error: jest.fn()
+}
+
 const messageBus = require('../messageBus')
 const { publish, subscribe } = require('../transport')
 const serDes = require('../serDes')

@@ -27,6 +27,22 @@ async function connect() {
       return connection
     }
     const cn = nats.connect(NATS_CLUSTER, clientID, { url: NATS_URL })
+    cn.on('error', (msg) =>
+      console.error('Nats connection error:', msg),
+    )
+    cn.on('permission_error', (msg) =>
+      console.error('Nats connection permission error:', msg),
+    )
+    cn.on('close', () => console.info('🛰️  Nats connection closed.'))
+    cn.on('disconnect', () =>
+      console.info('🛰️  Nats connection disconnected.'),
+    )
+    cn.on('reconnect', () =>
+      console.info('🛰️  Nats connection reconnected.'),
+    )
+    cn.on('reconnecting', () =>
+      console.info('🛰️  Nats connection reconnecting.'),
+    )
     await new Promise((resolve, reject) => {
       cn.on('connect', () => {
         resolve()
@@ -61,14 +77,34 @@ async function subscribe(subject, handler, opts) {
     natsOpts.setStartAt(nats.StartPosition.NEW_ONLY)
   }
 
+  const subscription =
+    opts == SubscriptionOptions.STREAM_PROCESSOR
+      ? client.subscribe(subject, NATS_Q_GROUP, natsOpts)
+      : client.subscribe(subject, natsOpts)
+
+  subscription.on('message', handler)
+  subscription.on('error', (err) => {
+    console.error(
+      `Nats subscription error for subject ${subject}.`,
+      err,
+    )
+  })
+  subscription.on('timeout', (err) => {
+    console.error(
+      `Nats subscription timed out for subject ${subject}.`,
+      err,
+    )
+  })
+
+  subscription.on('unsubscribed', () => {
+    console.info(`Unsubscribed from subject ${subject}.`)
+  })
+
+  subscription.on('closed', () => {
+    console.info(`Subscription closed for subject ${subject}.`)
+  })
+
   const result = await new Promise((resolve, reject) => {
-    const subscription =
-      opts == SubscriptionOptions.STREAM_PROCESSOR
-        ? client.subscribe(subject, NATS_Q_GROUP, natsOpts)
-        : client.subscribe(subject, natsOpts)
-
-    subscription.on('message', handler)
-
     subscription.on('ready', () => {
       resolve(subscription)
     })

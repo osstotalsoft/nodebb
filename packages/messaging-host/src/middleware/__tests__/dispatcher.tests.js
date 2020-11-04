@@ -1,6 +1,12 @@
 const { dispatcher } = require('../dispatcher')
 const { messagingHost } = require('../../messagingHost')
 
+global.console = {
+  log: jest.fn(),
+  info: jest.fn(),
+  error: jest.fn()
+}
+
 describe('dispatcher tests:', () => {
   it('should dispatch msg: ', async () => {
     //arrange
