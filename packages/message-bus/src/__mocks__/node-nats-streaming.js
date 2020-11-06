@@ -3,6 +3,8 @@ const subscriptionOptions = {
   setStartAt: jest.fn(),
   setDurableName: jest.fn(),
   setDeliverAllAvailable: jest.fn(),
+  setMaxInFlight: jest.fn(),
+  setManualAckMode: jest.fn(),
 }
 const _connectionErrorHandlers = []
 const connection = {
@@ -32,6 +34,7 @@ mock.connect.mockReturnValue(connection)
 
 mock.__connection = connection
 mock.__subscriptionOptions = subscriptionOptions
-mock.__emitConnectionError = err =>  _connectionErrorHandlers.forEach(cb => cb(err))
+mock.__emitConnectionError = (err) =>
+  _connectionErrorHandlers.forEach((cb) => cb(err))
 
 module.exports = mock

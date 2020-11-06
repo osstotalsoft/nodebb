@@ -59,5 +59,9 @@ NATS_CLUSTER="your_nats_cluster"
 NATS_CLIENT_ID="your_nats_client_id"
 NATS_Q_GROUP="your_q_group"
 NATS_DURABLE_NAME="durable"
+NATS_STREAM_PROCESSOR_MaxInflight="1"
+NATS_STREAM_PROCESSOR_AckWait="5000"
+NATS_PUB_SUB_MaxInflight="100"
+NATS_PUB_SUB_AckWait="5000"
 
 

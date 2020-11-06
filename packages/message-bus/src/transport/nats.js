@@ -10,6 +10,10 @@ const {
   NATS_URL,
   NATS_Q_GROUP,
   NATS_DURABLE_NAME,
+  NATS_STREAM_PROCESSOR_MaxInflight,
+  NATS_STREAM_PROCESSOR_AckWait,
+  NATS_PUB_SUB_MaxInflight,
+  NATS_PUB_SUB_AckWait,
 } = process.env
 
 const clientID = `${NATS_CLIENT_ID}-${v4()}`
@@ -27,11 +31,11 @@ async function connect() {
       return connection
     }
     const cn = nats.connect(NATS_CLUSTER, clientID, { url: NATS_URL })
-    cn.on('error', (msg) =>
-      console.error('Nats connection error:', msg),
+    cn.on('error', (err) =>
+      console.error(`Nats connection error: ${err}`),
     )
-    cn.on('permission_error', (msg) =>
-      console.error('Nats connection permission error:', msg),
+    cn.on('permission_error', (err) =>
+      console.error(`Nats connection permission error: ${err}`),
     )
     cn.on('close', () => console.info('🛰️  Nats connection closed.'))
     cn.on('disconnect', () =>
@@ -73,10 +77,21 @@ async function subscribe(subject, handler, opts) {
   if (opts == SubscriptionOptions.STREAM_PROCESSOR) {
     natsOpts.setDurableName(NATS_DURABLE_NAME)
     natsOpts.setDeliverAllAvailable()
-    natsOpts.setMaxInFlight(1)
+    natsOpts.setMaxInFlight(
+      parseInt(NATS_STREAM_PROCESSOR_MaxInflight, 10) || 1,
+    )
+    if (NATS_STREAM_PROCESSOR_AckWait) {
+      opts.setAckWait(parseInt(NATS_STREAM_PROCESSOR_AckWait, 10))
+    }
     natsOpts.setManualAckMode(true)
   } else {
     natsOpts.setStartAt(nats.StartPosition.NEW_ONLY)
+    natsOpts.setMaxInFlight(
+      parseInt(NATS_PUB_SUB_MaxInflight, 10) || 100,
+    )
+    if (NATS_PUB_SUB_AckWait) {
+      opts.setAckWait(parseInt(NATS_PUB_SUB_AckWait, 10))
+    }
   }
 
   const subscription =
@@ -92,14 +107,12 @@ async function subscribe(subject, handler, opts) {
   })
   subscription.on('error', (err) => {
     console.error(
-      `Nats subscription error for subject ${subject}.`,
-      err,
+      `Nats subscription error for subject ${subject}: ${err}`,
     )
   })
   subscription.on('timeout', (err) => {
     console.error(
-      `Nats subscription timed out for subject ${subject}.`,
-      err,
+      `Nats subscription timeout error for subject ${subject}: ${err}`,
     )
   })
 

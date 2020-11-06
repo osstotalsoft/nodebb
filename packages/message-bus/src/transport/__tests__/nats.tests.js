@@ -38,7 +38,7 @@ describe('Nats tests', () => {
 
 
     //assert
-    expect(global.console.error).toHaveBeenCalledWith('Nats connection error:', err)
+    expect(global.console.error).toHaveBeenCalledWith(`Nats connection error: ${err}`)
   })
 
   test('concurent connect calls', async () => {
@@ -124,6 +124,9 @@ describe('Nats tests', () => {
     ).toHaveBeenCalled()
     expect(
       natsClient.__subscriptionOptions.setDeliverAllAvailable,
+    ).toHaveBeenCalled()
+    expect(
+      natsClient.__subscriptionOptions.setManualAckMode,
     ).toHaveBeenCalled()
   })
 })
