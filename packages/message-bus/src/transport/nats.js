@@ -14,6 +14,8 @@ const {
   NATS_STREAM_PROCESSOR_AckWait,
   NATS_PUB_SUB_MaxInflight,
   NATS_PUB_SUB_AckWait,
+  NATS_RPC_MaxInflight,
+  NATS_RPC_AckWait,
 } = process.env
 
 const clientID = `${NATS_CLIENT_ID}-${v4()}`
@@ -74,30 +76,46 @@ async function publish(subject, msg) {
 async function subscribe(subject, handler, opts) {
   const client = await connect()
   const natsOpts = client.subscriptionOptions()
-  if (opts == SubscriptionOptions.STREAM_PROCESSOR) {
-    natsOpts.setDurableName(NATS_DURABLE_NAME)
-    natsOpts.setDeliverAllAvailable()
-    natsOpts.setMaxInFlight(
-      parseInt(NATS_STREAM_PROCESSOR_MaxInflight, 10) || 1,
-    )
-    if (NATS_STREAM_PROCESSOR_AckWait) {
-      opts.setAckWait(parseInt(NATS_STREAM_PROCESSOR_AckWait, 10))
-    }
-    natsOpts.setManualAckMode(true)
-  } else {
-    natsOpts.setStartAt(nats.StartPosition.NEW_ONLY)
-    natsOpts.setMaxInFlight(
-      parseInt(NATS_PUB_SUB_MaxInflight, 10) || 100,
-    )
-    if (NATS_PUB_SUB_AckWait) {
-      opts.setAckWait(parseInt(NATS_PUB_SUB_AckWait, 10))
-    }
+  let useQGroup = false
+  switch (opts) {
+    case SubscriptionOptions.STREAM_PROCESSOR:
+      useQGroup = true
+      natsOpts.setDurableName(NATS_DURABLE_NAME)
+      natsOpts.setDeliverAllAvailable()
+      natsOpts.setMaxInFlight(
+        parseInt(NATS_STREAM_PROCESSOR_MaxInflight, 10) || 1,
+      )
+      if (NATS_STREAM_PROCESSOR_AckWait) {
+        opts.setAckWait(parseInt(NATS_STREAM_PROCESSOR_AckWait, 10))
+      }
+      natsOpts.setManualAckMode(true)
+      break
+    case SubscriptionOptions.PUB_SUB:
+      useQGroup = true
+      natsOpts.setStartAt(nats.StartPosition.NEW_ONLY)
+      natsOpts.setMaxInFlight(
+        parseInt(NATS_PUB_SUB_MaxInflight, 10) || 100,
+      )
+      if (NATS_PUB_SUB_AckWait) {
+        opts.setAckWait(parseInt(NATS_PUB_SUB_AckWait, 10))
+      }
+      break
+    case SubscriptionOptions.RPC:
+      useQGroup = false
+      natsOpts.setStartAt(nats.StartPosition.NEW_ONLY)
+      natsOpts.setMaxInFlight(
+        parseInt(NATS_RPC_MaxInflight, 10) || 1,
+      )
+      if (NATS_RPC_AckWait) {
+        opts.setAckWait(parseInt(NATS_RPC_AckWait, 10))
+      }
+      break
+    default:
   }
 
-  const subscription =
-    opts == SubscriptionOptions.STREAM_PROCESSOR
-      ? client.subscribe(subject, NATS_Q_GROUP, natsOpts)
-      : client.subscribe(subject, natsOpts)
+  const subscription = useQGroup
+    ? client.subscribe(subject, NATS_Q_GROUP, natsOpts)
+    : client.subscribe(subject, natsOpts)
 
   subscription.on('message', (msg) => {
     handler(msg)

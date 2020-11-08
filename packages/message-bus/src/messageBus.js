@@ -69,7 +69,7 @@ async function sendCommandAndReceiveEvent(
             resolveEventReceived([eventTopic, ev])
           }
         },
-        SubscriptionOptions.PUB_SUB,
+        SubscriptionOptions.RPC,
       ),
     ),
   )
