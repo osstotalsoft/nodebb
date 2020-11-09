@@ -1,6 +1,6 @@
 {
   "name": "@totalsoft/messaging-host",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "Opinionated, provider independent, messaging patterns",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
@@ -24,7 +24,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@totalsoft/message-bus": "^0.0.9",
+    "@totalsoft/message-bus": "^0.1.0",
     "ramda": "^0.27.0",
     "uuid": "^8.3.0"
   }
