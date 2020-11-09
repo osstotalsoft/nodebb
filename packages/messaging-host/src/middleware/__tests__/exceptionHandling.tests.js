@@ -1,6 +1,12 @@
 const { exceptionHandling } = require('../exceptionHandling')
 const { messagingHost } = require('../../messagingHost')
 
+global.console = {
+  log: jest.fn(),
+  info: jest.fn(),
+  error: jest.fn()
+}
+
 describe('exceptionHandling tests:', () => {
   it('should handle exceptions: ', async () => {
     //arrange

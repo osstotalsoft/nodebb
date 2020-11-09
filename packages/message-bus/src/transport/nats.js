@@ -10,6 +10,12 @@ const {
   NATS_URL,
   NATS_Q_GROUP,
   NATS_DURABLE_NAME,
+  NATS_STREAM_PROCESSOR_MaxInflight,
+  NATS_STREAM_PROCESSOR_AckWait,
+  NATS_PUB_SUB_MaxInflight,
+  NATS_PUB_SUB_AckWait,
+  NATS_RPC_MaxInflight,
+  NATS_RPC_AckWait,
 } = process.env
 
 const clientID = `${NATS_CLIENT_ID}-${v4()}`
@@ -27,6 +33,22 @@ async function connect() {
       return connection
     }
     const cn = nats.connect(NATS_CLUSTER, clientID, { url: NATS_URL })
+    cn.on('error', (err) =>
+      console.error(`Nats connection error: ${err}`),
+    )
+    cn.on('permission_error', (err) =>
+      console.error(`Nats connection permission error: ${err}`),
+    )
+    cn.on('close', () => console.info('🛰️  Nats connection closed.'))
+    cn.on('disconnect', () =>
+      console.info('🛰️  Nats connection disconnected.'),
+    )
+    cn.on('reconnect', () =>
+      console.info('🛰️  Nats connection reconnected.'),
+    )
+    cn.on('reconnecting', () =>
+      console.info('🛰️  Nats connection reconnecting.'),
+    )
     await new Promise((resolve, reject) => {
       cn.on('connect', () => {
         resolve()
@@ -54,21 +76,73 @@ async function publish(subject, msg) {
 async function subscribe(subject, handler, opts) {
   const client = await connect()
   const natsOpts = client.subscriptionOptions()
-  if (opts == SubscriptionOptions.STREAM_PROCESSOR) {
-    natsOpts.setDurableName(NATS_DURABLE_NAME)
-    natsOpts.setDeliverAllAvailable()
-  } else {
-    natsOpts.setStartAt(nats.StartPosition.NEW_ONLY)
+  let useQGroup = false
+  switch (opts) {
+    case SubscriptionOptions.STREAM_PROCESSOR:
+      useQGroup = true
+      natsOpts.setDurableName(NATS_DURABLE_NAME)
+      natsOpts.setDeliverAllAvailable()
+      natsOpts.setMaxInFlight(
+        parseInt(NATS_STREAM_PROCESSOR_MaxInflight, 10) || 1,
+      )
+      if (NATS_STREAM_PROCESSOR_AckWait) {
+        opts.setAckWait(parseInt(NATS_STREAM_PROCESSOR_AckWait, 10))
+      }
+      natsOpts.setManualAckMode(true)
+      break
+    case SubscriptionOptions.PUB_SUB:
+      useQGroup = true
+      natsOpts.setStartAt(nats.StartPosition.NEW_ONLY)
+      natsOpts.setMaxInFlight(
+        parseInt(NATS_PUB_SUB_MaxInflight, 10) || 100,
+      )
+      if (NATS_PUB_SUB_AckWait) {
+        opts.setAckWait(parseInt(NATS_PUB_SUB_AckWait, 10))
+      }
+      break
+    case SubscriptionOptions.RPC:
+      useQGroup = false
+      natsOpts.setStartAt(nats.StartPosition.NEW_ONLY)
+      natsOpts.setMaxInFlight(
+        parseInt(NATS_RPC_MaxInflight, 10) || 1,
+      )
+      if (NATS_RPC_AckWait) {
+        opts.setAckWait(parseInt(NATS_RPC_AckWait, 10))
+      }
+      break
+    default:
   }
 
+  const subscription = useQGroup
+    ? client.subscribe(subject, NATS_Q_GROUP, natsOpts)
+    : client.subscribe(subject, natsOpts)
+
+  subscription.on('message', (msg) => {
+    handler(msg)
+    if (natsOpts.manualAcks) {
+      msg.ack()
+    }
+  })
+  subscription.on('error', (err) => {
+    console.error(
+      `Nats subscription error for subject ${subject}: ${err}`,
+    )
+  })
+  subscription.on('timeout', (err) => {
+    console.error(
+      `Nats subscription timeout error for subject ${subject}: ${err}`,
+    )
+  })
+
+  subscription.on('unsubscribed', () => {
+    console.info(`Unsubscribed from subject ${subject}.`)
+  })
+
+  subscription.on('closed', () => {
+    console.info(`Subscription closed for subject ${subject}.`)
+  })
+
   const result = await new Promise((resolve, reject) => {
-    const subscription =
-      opts == SubscriptionOptions.STREAM_PROCESSOR
-        ? client.subscribe(subject, NATS_Q_GROUP, natsOpts)
-        : client.subscribe(subject, natsOpts)
-
-    subscription.on('message', handler)
-
     subscription.on('ready', () => {
       resolve(subscription)
     })

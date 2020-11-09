@@ -32,7 +32,13 @@ const handler = console.log
 
 const subscription = await messageBus.subscribe('USER_UPDATED', handler, messageBus.SubscriptionOptions.STREAM_PROCESSOR)
 ```
-The last optional parameter *subscription options*  is a high level configuration of the subscription type. You can opt in for the default value of STREAM_PROCESSOR (durable at-least-once messaging) or PUB_SUB (simple lightweight pub-sub)
+The last optional parameter *subscription options*  is a high level configuration of the subscription type. See below.
+
+## subscription options
+When subscribing to a stream you ca opt in one of the following:
+ - STREAM_PROCESSOR: typical event driven subscriptions; durable, at-least-once, within a queue group
+ - PUB_SUB: lite weight, non-durable, at-most-once, within a queue group
+ - RPC: lite weight, non-durable, at-most-once, without queue group, used in send-command-and-wait-for-event scenarios
 
 
 ## request / response over messaging
@@ -52,12 +58,19 @@ const [topic, event] = await messageBus.sendCommandAndReceiveEvent(
 ```
 
 ## environment variables
-Messaging__TopicPrefix="messaging_env"
+Messaging__TopicPrefix="deprecated_please_use_Messaging__Env"
+Messaging__Env="messaging_env"
 Messaging__Source="your_service_name"
 NATS_URL="your_nats_url"
 NATS_CLUSTER="your_nats_cluster"
 NATS_CLIENT_ID="your_nats_client_id"
 NATS_Q_GROUP="your_q_group"
 NATS_DURABLE_NAME="durable"
+NATS_STREAM_PROCESSOR_MaxInflight="1"
+NATS_STREAM_PROCESSOR_AckWait="5000"
+NATS_PUB_SUB_MaxInflight="100"
+NATS_PUB_SUB_AckWait="5000"
+NATS_RPC_MaxInflight="1"
+NATS_RPC_AckWait="5000"
 
 
