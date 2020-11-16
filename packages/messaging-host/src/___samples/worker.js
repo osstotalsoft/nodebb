@@ -6,7 +6,8 @@ const { messagingHost, SubscriptionOptions } = require('../index')
 
 const topics = ['nodebb.sample.topic.1', 'nodebb.sample.topic.2']
 
-messagingHost()
+const msgHost = messagingHost()
+msgHost
   .subscribe(topics, SubscriptionOptions.PUB_SUB)
   .use(async (ctx, next) => {
     console.log(`received msg from topic ${ctx.received.topic}`)
@@ -21,6 +22,20 @@ messagingHost()
   //     })
   //   }, 5000)
   // })
-// setTimeout(()=>{
-//   throw new Error("some error")
-// }, 5000)
+
+  process.on("uncaughtException", function (error, origin) {
+    msgHost.stopImmediate();
+    throw new Error(`Exception occurred while processing the request: ${error}\n` + `Exception origin: ${origin}`);
+  });
+  
+  process.on('SIGINT', () => {
+    msgHost.stopImmediate();
+  });
+  process.on('SIGTERM', () => {
+    msgHost.stopImmediate();
+  });
+
+
+setTimeout(()=>{
+  throw new Error("some error")
+}, 5000)

@@ -21,6 +21,7 @@ export type MessagingHost = {
   ) => MessagingHost
   start: () => Promise<MessagingHost>
   stop: () => Promise<void>
+  stopImmediate: () => void
 }
 
 export type MessagingHostContext = {

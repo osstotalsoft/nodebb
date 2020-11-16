@@ -55,6 +55,17 @@ function messagingHost() {
     await messageBus.transport.disconnect()
   }
 
+  function stopImmediate() {
+    console.info('Messaging Host is shutting down...')
+    connection.removeListener('error', onConnectionErrorOrClosed)
+    connection.removeListener('close', onConnectionErrorOrClosed)
+    // process.removeListener('SIGINT', onShutdownSignalReceived)
+    // process.removeListener('SIGTERM', onShutdownSignalReceived)
+    // process.removeListener('uncaughtException', onUncaughtException)
+    //subscriptions.forEach((subscription) => subscription.unsubscribe())
+    messageBus.transport.disconnect()
+  }
+
   function onConnectionErrorOrClosed() {
     return stop().then(start)
   }
@@ -78,6 +89,7 @@ function messagingHost() {
     subscribe,
     start,
     stop,
+    stopImmediate,
     _contextFactory,
   }
 }
