@@ -20,7 +20,7 @@ export type MessagingHost = {
     opts: SubscriptionOptions,
   ) => MessagingHost
   start: () => Promise<MessagingHost>
-  stop: () => void
+  stop: () => Promise<void>
 }
 
 export type MessagingHostContext = {

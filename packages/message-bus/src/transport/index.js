@@ -1,6 +1,7 @@
-const { connect, publish, subscribe } = require("./nats")
+const { connect, disconnect, publish, subscribe } = require("./nats")
 module.exports = {
     connect,
+    disconnect,
     publish,
     subscribe
 }
