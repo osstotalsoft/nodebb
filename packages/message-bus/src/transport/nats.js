@@ -64,6 +64,22 @@ async function connect() {
   }
 }
 
+async function disconnect() {
+  if (!connection) {
+    return
+  }
+  const release = await connectionMutex.acquire()
+  try {
+    if (!connection) {
+      return
+    }
+    connection.close()
+    connection = null
+  } finally {
+    release()
+  }
+}
+
 async function publish(subject, msg) {
   const client = await connect()
   const _publish = Promise.promisify(client.publish, {
@@ -103,9 +119,7 @@ async function subscribe(subject, handler, opts) {
     case SubscriptionOptions.RPC:
       useQGroup = false
       natsOpts.setStartAt(nats.StartPosition.NEW_ONLY)
-      natsOpts.setMaxInFlight(
-        parseInt(NATS_RPC_MaxInflight, 10) || 1,
-      )
+      natsOpts.setMaxInFlight(parseInt(NATS_RPC_MaxInflight, 10) || 1)
       if (NATS_RPC_AckWait) {
         opts.setAckWait(parseInt(NATS_RPC_AckWait, 10))
       }
@@ -144,7 +158,7 @@ async function subscribe(subject, handler, opts) {
 
   const result = await new Promise((resolve, reject) => {
     subscription.on('ready', () => {
-      resolve(subscription)
+      resolve(wrapSubscription(subscription))
     })
     subscription.on('error', (err) => {
       reject(err)
@@ -154,8 +168,28 @@ async function subscribe(subject, handler, opts) {
   return result
 }
 
+function wrapSubscription(natsSubscription) {
+  return {
+    on: natsSubscription.on,
+    unsubscribe: function unsubscribe() {
+      
+      return new Promise((resolve, reject) => {
+        natsSubscription.on('unsubscribed', () => {
+          resolve()
+        })
+        natsSubscription.on('error', (err) => {
+          reject(err)
+        })
+        natsSubscription.unsubscribe()
+      })
+    },
+    _natsSubscription: natsSubscription,
+  }
+}
+
 module.exports = {
   connect,
+  disconnect,
   publish,
   subscribe,
 }

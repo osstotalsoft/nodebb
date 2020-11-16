@@ -4,10 +4,11 @@ export interface Connection {}
 export type MessageHandler = (msg: string) => void
 
 export interface Subscription {
-  unsubscribe: () => void
+  unsubscribe: () => Promise<void>
 }
 
 export function connect(): Promise<Connection>
+export function disconnect(): Promise<void>
 export function publish(subject: string, msg: any): Promise<void>
 export function subscribe(
   subject: string,
