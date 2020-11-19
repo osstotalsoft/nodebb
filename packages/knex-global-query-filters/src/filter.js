@@ -71,7 +71,7 @@ function applyOrMap(fn, objOrArray) {
 }
 
 function splitTableAndAlias(table) {
-  return table.split(/ as /i).map((x) => x.trim())
+  return table.split(/ as /i).map((x) => x.trim().replace('[', '').replace(']', ''))
 }
 
 module.exports = {
