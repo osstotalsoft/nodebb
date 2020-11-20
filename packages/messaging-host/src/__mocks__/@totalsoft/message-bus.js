@@ -1,4 +1,7 @@
 const mock = jest.genMockFromModule('@totalsoft/message-bus')
+mock.transport = {
+  connect: jest.fn().mockResolvedValue({ on: jest.fn() }),
+}
 
 mock.__mockSubscriptionOnce = function __mockSubscriptionOnce(
   ...events
@@ -20,7 +23,7 @@ mock.__mockSubscriptionOnce = function __mockSubscriptionOnce(
 }
 
 mock.__clearMocks = function __clearMocks() {
-  mock.subscribe.mockClear();
-};
+  mock.subscribe.mockClear()
+}
 
 module.exports = mock

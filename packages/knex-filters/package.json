@@ -1,5 +1,5 @@
 {
-  "name": "@totalsoft/knex-global-query-filters",
+  "name": "@totalsoft/knex-filters",
   "version": "0.1.1",
   "description": "Knex global query filters",
   "main": "./src/index.js",
@@ -13,11 +13,11 @@
     "tslint": "tslint -p tsconfig.json \"/**/*.ts\""
   },
   "author": "TotalSoft",
-  "homepage": "https://github.com/osstotalsoft/nodebb/tree/master/packages/knex-global-query-filters",
+  "homepage": "https://github.com/osstotalsoft/nodebb/tree/master/packages/knex-filters",
   "repository": {
     "type": "git",
     "url": "https://github.com/osstotalsoft/nodebb.git",
-    "directory": "packages/knex-global-query-filters"
+    "directory": "packages/knex-filters"
   },
   "license": "ISC",
   "publishConfig": {

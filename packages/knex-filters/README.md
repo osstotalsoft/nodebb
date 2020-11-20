@@ -3,7 +3,7 @@ Knex global query filters
 
 ## installation
 ```javascript
-npm install @totalsoft/knex-global-query-filters
+npm install @totalsoft/knex-filters
 ```
 
 ## philosophy
