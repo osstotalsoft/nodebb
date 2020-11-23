@@ -6,6 +6,7 @@
 ## The blocks
   - [`message-bus`](./packages/message-bus#readme)
   - [`messaging-host`](./packages/messaging-host#readme)
+  - [`knex-filters`](./packages/knex-filters#readme)
 
 ## Bootstrap
 ```javascript
