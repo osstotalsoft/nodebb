@@ -308,25 +308,25 @@
     minimist "^1.2.0"
 
 "@definitelytyped/header-parser@latest":
-  version "0.0.63"
-  resolved "https://registry.yarnpkg.com/@definitelytyped/header-parser/-/header-parser-0.0.63.tgz#28056992adb3514097c558b551f00dc09d0c5b7c"
-  integrity sha512-r/jzxcUCOQkfUIu136rAWaUP5Anly+3IGCapeEu6RR1zPwtZZ/hfNCB12MG18fonwamIUY/R1NB6Dxnc1g9CAA==
+  version "0.0.64"
+  resolved "https://registry.yarnpkg.com/@definitelytyped/header-parser/-/header-parser-0.0.64.tgz#702f8aee1a5ff8a7b091ad59dccd351aeaabf29b"
+  integrity sha512-vwh6ojw0PYptEiAogAdKNrwYy2Dv0zZj6M5bjKAoF7/xOmY5B/QluJnNmgF7Q+fxLG2vVxYDbkc26r04xYIZQA==
   dependencies:
-    "@definitelytyped/typescript-versions" "^0.0.63"
+    "@definitelytyped/typescript-versions" "^0.0.64"
     "@types/parsimmon" "^1.10.1"
     parsimmon "^1.13.0"
 
-"@definitelytyped/typescript-versions@^0.0.63", "@definitelytyped/typescript-versions@latest":
-  version "0.0.63"
-  resolved "https://registry.yarnpkg.com/@definitelytyped/typescript-versions/-/typescript-versions-0.0.63.tgz#462415af637a8c18bdd2079d17435cbdb64037ee"
-  integrity sha512-+/8vS3C828ugBiSg26qiJere+hwCuvs1sv0SsPYqRO6I/v6ITVwpT1Pcy9+C/zzCCq6XN4HWStoHU/GCXf80kA==
+"@definitelytyped/typescript-versions@^0.0.64", "@definitelytyped/typescript-versions@latest":
+  version "0.0.64"
+  resolved "https://registry.yarnpkg.com/@definitelytyped/typescript-versions/-/typescript-versions-0.0.64.tgz#e53c91bf1d9cbd7bbb23d4ef171fcc27d4a43aa0"
+  integrity sha512-h+RvQPzvC/yVtZ/FqttXoIac/X1htXrmuNbvmQP+RiVonGunKq7S8ona5tm7ckiheur6VvtKQGe+zQIDF3sErQ==
 
 "@definitelytyped/utils@latest":
-  version "0.0.63"
-  resolved "https://registry.yarnpkg.com/@definitelytyped/utils/-/utils-0.0.63.tgz#60853100e47f9b3bb334fda0b2a225f08803454d"
-  integrity sha512-V7w7459ZcTpKMJTo2wY6Y/v3DS12q3YzNwTdV0d93RTuhpHbmn/WN9u69v49FsMCriiBlv+D2E1PJpwtHk4X7g==
+  version "0.0.64"
+  resolved "https://registry.yarnpkg.com/@definitelytyped/utils/-/utils-0.0.64.tgz#26b97072a0b04ffc8ff2bdf554aae4324492808a"
+  integrity sha512-ahxruUzplmVwWnJavaRcj8JN4B6znkYjmSTGyWSzgc+aL596nVZGyVRDlOL5mKSnJk1MzT4Uj4Gx0bg3l6CPHw==
   dependencies:
-    "@definitelytyped/typescript-versions" "^0.0.63"
+    "@definitelytyped/typescript-versions" "^0.0.64"
     "@types/node" "^12.12.29"
     charm "^1.0.2"
     fs-extra "^8.1.0"
@@ -5280,7 +5280,7 @@ kleur@^3.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
 
-knex@^0.21.11:
+knex@^0.21.0:
   version "0.21.12"
   resolved "https://registry.yarnpkg.com/knex/-/knex-0.21.12.tgz#961bdb484311eb853030f6f49bd5bf9eca89dc51"
   integrity sha512-AEyyiTM9p/x/Pb38TPZkvphKPmn8UWxP7MdIphzjAOielOfFFeU6pjP6y3M7UJ7rxrQsCrAYHwdonLQ3l1JCDw==
@@ -5814,7 +5814,7 @@ ms@2.1.2, ms@^2.0.0, ms@^2.1.1:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
   integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
 
-mssql@^6.2.3:
+mssql@^6.2.0:
   version "6.2.3"
   resolved "https://registry.yarnpkg.com/mssql/-/mssql-6.2.3.tgz#1d15bbe8c3057e32ee6e98596b6c323b097a6cba"
   integrity sha512-4TW/fA9UgzmVTNgjl65r6ISr6aL5QHnlptEt1A3jIpdzkNbFPIkRbUNz90324HIdE+5pKc3VqikOImcTrhd4og==

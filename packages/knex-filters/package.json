@@ -24,9 +24,14 @@
     "access": "public"
   },
   "dependencies": {
-    "knex": "^0.21.11",
-    "mock-knex": "^0.4.9",
-    "mssql": "^6.2.3",
     "ramda": "^0.27.1"
+  },
+  "peerDependencies": {
+    "knex": "^0.21.0"
+  },
+  "devDependencies": {
+    "knex": "^0.21.0",
+    "mock-knex": "^0.4.9",
+    "mssql": "^6.2.0"
   }
 }
