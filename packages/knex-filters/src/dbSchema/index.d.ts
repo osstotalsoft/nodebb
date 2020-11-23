@@ -1,1 +1,4 @@
-export * from './mssql'
+import * as mssql from './mssql'
+export {
+    mssql
+}

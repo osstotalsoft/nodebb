@@ -1,4 +1,4 @@
-const { mssql } = require('./mssql')
+const mssql = require('./mssql')
 
 module.exports = {
     mssql

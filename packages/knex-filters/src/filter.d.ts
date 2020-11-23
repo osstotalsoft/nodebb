@@ -1,19 +1,19 @@
-import Knex from 'knex'
+import Knex = require('knex')
 
 export interface Hooks {
   onSelect?: (
     tableOrAlias: string,
-    queryBuilder: Knex.QueryBuilder<any, any>,
+    queryBuilder: Knex.QueryBuilder,
   ) => void
   onInsert?: (inserted: any, queryBuilder: Knex.QueryBuilder) => void
   onUpdate?: (
     tableOrAlias: string,
-    queryBuilder: Knex.QueryBuilder<any, any>,
+    queryBuilder: Knex.QueryBuilder,
     updates: any,
   ) => void
   onDelete?: (
     tableOrAlias: string,
-    queryBuilder: Knex.QueryBuilder<any, any>,
+    queryBuilder: Knex.QueryBuilder,
   ) => void
 }
 
@@ -30,7 +30,7 @@ export function createFilter(
 ): Filter
 
 /**
- * 
+ *
  * Registers a filter with a Knex instance
  * @see https://github.com/osstotalsoft/nodebb/tree/master/packages/knex-filters#registerFilter
  */
