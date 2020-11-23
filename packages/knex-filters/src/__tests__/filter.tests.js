@@ -167,13 +167,13 @@ describe('filter tests', () => {
 
     expect(hooks.onUpdate).toHaveBeenCalledWith(
       'table1',
-      table1Updates,
       expect.anything(),
+      table1Updates,
     )
     expect(hooks.onUpdate).toHaveBeenCalledWith(
       'tbl2',
-      table2Updates,
       expect.anything(),
+      table2Updates,
     )
   })
 

@@ -44,7 +44,7 @@ function applyOnUpdateFilter(filter, queryBuilder) {
   if (!onUpdate) {
     return
   }
-  onUpdate(alias ?? table, queryBuilder._single.update, queryBuilder)
+  onUpdate(alias ?? table, queryBuilder, queryBuilder._single.update)
 }
 
 function applyOnDeleteFilter(filter, queryBuilder) {
