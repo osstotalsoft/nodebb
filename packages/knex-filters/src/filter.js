@@ -8,10 +8,28 @@ function createFilter(tablePredicate, hooks) {
 }
 
 function registerFilter(filter, knex) {
-  const innerRunner = knex.client.runner
-  knex.client.runner = (builder) => {
-    applyFilter(filter, builder)
-    return innerRunner.call(knex.client, builder)
+  function extendKnex(knex) {
+    const innerRunner = knex.client.runner
+    knex.client.runner = (builder) => {
+      applyFilter(filter, builder)
+      return innerRunner.call(knex.client, builder)
+    }
+  }
+
+  extendKnex(knex)
+
+  const innerTransaction = knex.client.transaction
+  knex.client.transaction = function (container, config, outerTx) {
+    const wrapper = function (trx) {
+      extendKnex(trx)
+      return container(trx)
+    }
+    return innerTransaction.call(
+      knex.client,
+      wrapper,
+      config,
+      outerTx,
+    )
   }
 }
 
