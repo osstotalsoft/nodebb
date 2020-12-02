@@ -1,5 +1,6 @@
 const Knex = require('knex')
 const mockDb = require('mock-knex')
+const MSSQLMockKnex = require('../__mocks/MSSQLMockKnex')
 
 const { registerFilter } = require('../filter')
 
@@ -204,6 +205,66 @@ describe('filter tests', () => {
     )
     expect(hooks.onDelete).toHaveBeenCalledWith(
       'tbl2',
+      expect.anything(),
+    )
+  })
+
+  test('transaction', async () => {
+    //arrange
+    var knex = Knex({
+      client: 'mssql',
+    })
+    MSSQLMockKnex.client.mock(knex)
+
+    const hooks = {
+      onSelect: jest.fn(),
+      onInsert: jest.fn(),
+      onUpdate: jest.fn(),
+      onDelete: jest.fn(),
+    }
+
+    const filter = jest.fn(() => hooks)
+    registerFilter(filter, knex)
+
+    const insertedRow = { column1: 'value1' }
+    const updates = { column1: 'value2' }
+
+    //act
+    await knex.transaction(async (trx) => {
+      await trx
+        .select('column1')
+        .from('table1 as tbl1')
+
+      await trx('table2').insert(insertedRow)
+
+      await trx('dbo.table3').update(updates)
+
+      await trx('dbo.table4 as tbl4').del()
+    })
+
+    //assert
+    expect(filter).toHaveBeenCalledWith('table1')
+    expect(hooks.onSelect).toHaveBeenCalledWith(
+      'tbl1',
+      expect.anything(),
+    )
+
+    expect(filter).toHaveBeenCalledWith('table2')
+    expect(hooks.onInsert).toHaveBeenCalledWith(
+      insertedRow,
+      expect.anything(),
+    )
+
+    expect(filter).toHaveBeenCalledWith('dbo.table3')
+    expect(hooks.onUpdate).toHaveBeenCalledWith(
+      'dbo.table3',
+      expect.anything(),
+      updates,
+    )
+
+    expect(filter).toHaveBeenCalledWith('dbo.table4')
+    expect(hooks.onDelete).toHaveBeenCalledWith(
+      'tbl4',
       expect.anything(),
     )
   })

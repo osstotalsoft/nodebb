@@ -30,7 +30,9 @@
     "knex": "^0.21.0"
   },
   "devDependencies": {
+    "bluebird": "^3.7.2",
     "knex": "^0.21.0",
+    "lodash": "^4.17.20",
     "mock-knex": "^0.4.9",
     "mssql": "^6.2.0"
   }
