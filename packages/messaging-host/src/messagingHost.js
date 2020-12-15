@@ -23,9 +23,6 @@ function messagingHost() {
     connection = await messageBus.transport.connect()
     connection.on('error', onConnectionErrorOrClosed)
     connection.on('close', onConnectionErrorOrClosed)
-    // process.on('SIGINT', onShutdownSignalReceived)
-    // process.on('SIGTERM', onShutdownSignalReceived)
-    // process.on('uncaughtException', onUncaughtException)
 
     const subs = Object.entries(
       subscriptionOptions,
@@ -43,11 +40,10 @@ function messagingHost() {
 
   async function stop() {
     console.info('Messaging Host is shutting down...')
-    connection.removeListener('error', onConnectionErrorOrClosed)
-    connection.removeListener('close', onConnectionErrorOrClosed)
-    // process.removeListener('SIGINT', onShutdownSignalReceived)
-    // process.removeListener('SIGTERM', onShutdownSignalReceived)
-    // process.removeListener('uncaughtException', onUncaughtException)
+    if (connection) {
+      connection.removeListener('error', onConnectionErrorOrClosed)
+      connection.removeListener('close', onConnectionErrorOrClosed)
+    }
 
     await Promise.allSettled(
       subscriptions.map((subscription) => subscription.unsubscribe()),
@@ -57,28 +53,23 @@ function messagingHost() {
 
   function stopImmediate() {
     console.info('Messaging Host is shutting down...')
-    connection.removeListener('error', onConnectionErrorOrClosed)
-    connection.removeListener('close', onConnectionErrorOrClosed)
-    // process.removeListener('SIGINT', onShutdownSignalReceived)
-    // process.removeListener('SIGTERM', onShutdownSignalReceived)
-    // process.removeListener('uncaughtException', onUncaughtException)
-    //subscriptions.forEach((subscription) => subscription.unsubscribe())
-    messageBus.transport.disconnect()
+    if (connection) {
+      connection.removeListener('error', onConnectionErrorOrClosed)
+      connection.removeListener('close', onConnectionErrorOrClosed)
+    }
+    try {
+      subscriptions.forEach((subscription) => {
+        subscription.unsubscribe()
+      })
+      messageBus.transport.disconnect()
+    } catch {
+      //there is nothing we can do
+    }
   }
 
   function onConnectionErrorOrClosed() {
-    return stop().then(start)
+    throw new Error('Messaging Host transport connection failure!')
   }
-
-  // function onShutdownSignalReceived() {
-  //   stop()
-  // }
-
-  // function onUncaughtException(err, origin) {
-  //   stop().then(() => {
-  //     throw new Error(`Exception occurred: ${err}\n` + `Exception origin: ${origin}`)
-  //   })
-  // }
 
   function _contextFactory(topic, msg) {
     return { received: { topic, msg } }

@@ -2,7 +2,7 @@ process.env.NATS_CLIENT_ID = 'nodebb_sample'
 process.env.NATS_Q_GROUP = 'nodebb_sample'
 
 const { messagingHost, SubscriptionOptions } = require('../index')
-//const messageBus = require('@totalsoft/message-bus')
+const messageBus = require('@totalsoft/message-bus')
 
 const topics = ['nodebb.sample.topic.1', 'nodebb.sample.topic.2']
 
@@ -14,14 +14,14 @@ msgHost
     await next()
   })
   .start()
-  // .then(() => {
-  //   //host.stop()
-  //   setInterval(() => {
-  //     messageBus.transport.connect().then((connection) => {
-  //       connection.close()
-  //     })
-  //   }, 5000)
-  // })
+  .then(() => {
+    //host.stop()
+    setTimeout(() => {
+      messageBus.transport.connect().then((connection) => {
+        connection.close()
+      })
+    }, 5000)
+  })
 
   process.on("uncaughtException", function (error, origin) {
     msgHost.stopImmediate();
@@ -36,6 +36,6 @@ msgHost
   });
 
 
-setTimeout(()=>{
-  throw new Error("some error")
-}, 5000)
+// setTimeout(()=>{
+//   throw new Error("some error")
+// }, 5000)
