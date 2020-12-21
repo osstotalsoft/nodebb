@@ -63,15 +63,14 @@ function applyFilter(filter, queryBuilder) {
     case 'insert':
       applyOnInsertFilter(filter, queryBuilder)
       break
-    case 'select':
-      applyOnSelectFilter(filter, queryBuilder)
-      break
     case 'update':
       applyOnUpdateFilter(filter, queryBuilder)
       break
     case 'del':
       applyOnDeleteFilter(filter, queryBuilder)
       break
+    default:
+      applyOnSelectFilter(filter, queryBuilder)
   }
 }
 
