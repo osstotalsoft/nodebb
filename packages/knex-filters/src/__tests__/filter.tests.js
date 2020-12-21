@@ -231,9 +231,7 @@ describe('filter tests', () => {
 
     //act
     await knex.transaction(async (trx) => {
-      await trx
-        .select('column1')
-        .from('table1 as tbl1')
+      await trx.select('column1').from('table1 as tbl1')
 
       await trx('table2').insert(insertedRow)
 
@@ -268,4 +266,127 @@ describe('filter tests', () => {
       expect.anything(),
     )
   })
+
+  test('count', async () => {
+    //arrange
+    var knex = Knex({
+      client: 'mssql',
+    })
+    mockDb.mock(knex)
+
+    const hooks = {
+      onSelect: jest.fn(),
+    }
+    const filter = jest.fn(() => hooks)
+    registerFilter(filter, knex)
+
+    //act
+    await knex('table1').count('column1', { as: 'c1' })
+    await knex('dbo.table2').count('column2')
+    await knex('table3 as tbl3')
+      .join('table4 as tbl4', 'tbl3.column3', 'tbl4.column4')
+      .count()
+
+    //assert
+    expect(filter).toHaveBeenCalledWith('table1')
+    expect(filter).toHaveBeenCalledWith('dbo.table2')
+    expect(filter).toHaveBeenCalledWith('table3')
+    expect(filter).toHaveBeenCalledWith('table4')
+
+    expect(hooks.onSelect).toHaveBeenCalledWith(
+      'table1',
+      expect.anything(),
+    )
+    expect(hooks.onSelect).toHaveBeenCalledWith(
+      'dbo.table2',
+      expect.anything(),
+    )
+    expect(hooks.onSelect).toHaveBeenCalledWith(
+      'tbl3',
+      expect.anything(),
+    )
+    expect(hooks.onSelect).toHaveBeenCalledWith(
+      'tbl4',
+      expect.anything(),
+    )
+  })
+  test('count modify first', async () => {
+    //arrange
+    var knex = Knex({
+      client: 'mssql',
+    })
+    mockDb.mock(knex)
+
+    const hooks = {
+      onSelect: jest.fn(),
+    }
+    const filter = jest.fn(() => hooks)
+    registerFilter(filter, knex)
+
+    //act
+    await knex
+      .count('column1', { as: 'c1' })
+      .modify((queryBuilder) => {
+        queryBuilder.from('table1')
+      })
+      .first()
+
+    //assert
+    expect(filter).toHaveBeenCalledWith('table1')
+    expect(hooks.onSelect).toHaveBeenCalledWith(
+      'table1',
+      expect.anything(),
+    )
+  })
+
+  test('first', async () => {
+    //arrange
+    var knex = Knex({
+      client: 'mssql',
+    })
+    mockDb.mock(knex)
+
+    const hooks = {
+      onSelect: jest.fn(),
+    }
+    const filter = jest.fn(() => hooks)
+    registerFilter(filter, knex)
+
+    //act
+    await knex
+      .table('table1')
+      .first('id', 'name')
+
+    //assert
+    expect(filter).toHaveBeenCalledWith('table1')
+    expect(hooks.onSelect).toHaveBeenCalledWith(
+      'table1',
+      expect.anything(),
+    )
+  })
+
+  test('min', async () => {
+    //arrange
+    var knex = Knex({
+      client: 'mssql',
+    })
+    mockDb.mock(knex)
+
+    const hooks = {
+      onSelect: jest.fn(),
+    }
+    const filter = jest.fn(() => hooks)
+    registerFilter(filter, knex)
+
+    //act
+    await knex('table1').min('id')
+
+    //assert
+    expect(filter).toHaveBeenCalledWith('table1')
+    expect(hooks.onSelect).toHaveBeenCalledWith(
+      'table1',
+      expect.anything(),
+    )
+  })
+
 })
