@@ -33,5 +33,6 @@ export function sendCommandAndReceiveEvent(
   command: any,
   events: string[],
   ctx?: Context,
+  envelopeCustomizer?: EnvelopeCustomizer,
   timeoutMs?: number,
 ): Promise<[string, any]>
