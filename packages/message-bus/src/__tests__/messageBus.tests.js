@@ -5,7 +5,7 @@ jest.mock('../transport')
 global.console = {
   log: jest.fn(),
   info: jest.fn(),
-  error: jest.fn()
+  error: jest.fn(),
 }
 
 const messageBus = require('../messageBus')
@@ -77,6 +77,7 @@ describe('MessageBus tests', () => {
       {},
       ['topic-ev1', 'topic-ev2'],
       { correlationId: 'some-correlation-id' },
+      null,
       100,
     )
 
@@ -85,6 +86,32 @@ describe('MessageBus tests', () => {
       new Error('Message timeout occured.'),
     )
 
+    expect(subscribe).toHaveBeenCalledTimes(2)
+    expect(publish).toHaveBeenCalled()
+    expect(subscription.unsubscribe).toHaveBeenCalledTimes(2)
+  })
+
+  test('sendCommandAndReceiveEvent with envelopeCustomizer', async () => {
+    //arrange
+    publish.mockResolvedValue()
+    subscribe
+      .mockImplementationOnce(yieldsEvent)
+      .mockImplementationOnce(yieldsNoEvent)
+
+    const envelopeCustomizer = jest.fn((x) => x)
+
+    //act
+    const [topic] = await messageBus.sendCommandAndReceiveEvent(
+      'topic-cmd',
+      {},
+      ['topic-ev1', 'topic-ev2'],
+      { correlationId: 'some-correlation-id' },
+      envelopeCustomizer,
+    )
+
+    //assert
+    expect(topic).toBe('topic-ev1')
+    expect(envelopeCustomizer).toHaveBeenCalled()
     expect(subscribe).toHaveBeenCalledTimes(2)
     expect(publish).toHaveBeenCalled()
     expect(subscription.unsubscribe).toHaveBeenCalledTimes(2)

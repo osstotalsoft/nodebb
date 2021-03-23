@@ -52,6 +52,7 @@ async function sendCommandAndReceiveEvent(
   command,
   events,
   ctx = null,
+  envelopeCustomizer = null,
   timeoutMs = 20000,
 ) {
   let resolveEventReceived = null
@@ -74,7 +75,7 @@ async function sendCommandAndReceiveEvent(
     ),
   )
 
-  publishedMsg = await publish(topic, command, ctx)
+  publishedMsg = await publish(topic, command, ctx, envelopeCustomizer)
 
   try {
     const result = await new Promise((resolve, reject) => {
