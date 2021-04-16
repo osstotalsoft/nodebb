@@ -15,18 +15,27 @@ A filter is a function that receives a table and returns the hooks
 export type Filter = (table: string) => Hooks
 export interface Hooks {
   onSelect?: (
-    tableOrAlias: string,
-    queryBuilder: Knex.QueryBuilder<any, any>,
+    table: string,
+    alias: string,
+    queryBuilder: Knex.QueryBuilder,
+    clause: Knex.JoinClause | { table: string; only: boolean },
   ) => void
-  onInsert?: (inserted: any, queryBuilder: Knex.QueryBuilder) => void
+  onInsert?: (
+    table: string,
+    alias: string,
+    queryBuilder: Knex.QueryBuilder,
+    inserted: any,
+  ) => void
   onUpdate?: (
-    tableOrAlias: string,
-    queryBuilder: Knex.QueryBuilder<any, any>,
+    table: string,
+    alias: string,
+    queryBuilder: Knex.QueryBuilder,
     updates: any,
   ) => void
   onDelete?: (
-    tableOrAlias: string,
-    queryBuilder: Knex.QueryBuilder<any, any>,
+    table: string,
+    alias: string,
+    queryBuilder: Knex.QueryBuilder,
   ) => void
 }
 ```
@@ -37,8 +46,8 @@ While a filter is just a function, you can also create a filter from a table pre
 const filter = createFilter(
     (table)=> table == 'Products', 
     {
-        onSelect: (table, queryBuilder) => {
-            queryBuilder.andWhere(`[${table}].[isDeleted]`,'=',false,)
+        onSelect: (table, alias, queryBuilder, clause) => {
+            queryBuilder.andWhere(`[${alias ?? table}].[isDeleted]`,'=',false,)
         },
     },
   })
@@ -48,7 +57,7 @@ const filter = createFilter(
 Registers a filter with a Knex instance
 ```javascript
 registerFilter(()=>{
-    onInsert: (inserted) => {inserted.CreatedBy = getLoggedInUserId()}
+    onInsert: (table, alias, queryBuilder, inserted) => {inserted.CreatedBy = getLoggedInUserId()}
 }, knex)
 ```
 
@@ -64,25 +73,45 @@ const filter = createFilter(tableHasColumnIsDeleted, softDeletesHooks)
 
 ## Example: tenancy filter
 ```javascript
-async function registerTenancyFilter(knex, columnTenantId, tenantId) {
+async function registerTenancyFilter(columnTenantId, tenantId, knex) {
   const tableHasColumnTenantId = await buildTableHasColumnPredicate(
     columnTenantId,
     knex,
   )
 
-  const addWhereTenantIdClause = (table, queryBuilder) => {
+  const addWhereTenantIdClause = (table, alias, queryBuilder) => {
     queryBuilder.andWhere(
-      `[${table}].[${columnTenantId}]`,
+      `[${alias ?? table}].[${columnTenantId}]`,
+      '=',
+      tenantId,
+    )
+  }
+
+  const addOnTenantIdClause = (
+    table,
+    alias,
+    _queryBuilder,
+    joinClause,
+  ) => {
+    joinClause.andOnVal(
+      `[${alias ?? table}].[${columnTenantId}]`,
       '=',
       tenantId,
     )
   }
 
   const filter = createFilter(tableHasColumnTenantId, {
-    onSelect: addWhereTenantIdClause,
+    onSelect: (table, alias, queryBuilder, clause) => {
+      const leftJoinTypes = ['left', 'left outer']
+      if (leftJoinTypes.includes(clause.joinType)) {
+        addOnTenantIdClause(table, alias, queryBuilder, clause)
+      } else {
+        addWhereTenantIdClause(table, alias, queryBuilder)
+      }
+    },
     onUpdate: addWhereTenantIdClause,
     onDelete: addWhereTenantIdClause,
-    onInsert: (inserted) => {
+    onInsert: (_table, _alias, _queryBuilder, inserted) => {
       inserted[columnTenantId] = tenantId
     },
   })
