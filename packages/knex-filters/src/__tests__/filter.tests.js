@@ -15,7 +15,9 @@ describe('filter tests', () => {
     const hooks = {
       onSelect: jest.fn(),
     }
-    const filter = jest.fn(() => hooks)
+    const filter = jest.fn(() => {
+      return hooks
+    })
     registerFilter(filter, knex)
 
     //act
@@ -33,23 +35,33 @@ describe('filter tests', () => {
     expect(filter).toHaveBeenCalledWith('dbo.table5')
 
     expect(hooks.onSelect).toHaveBeenCalledWith(
+      'table1',
       'tbl1',
+      expect.anything(),
       expect.anything(),
     )
     expect(hooks.onSelect).toHaveBeenCalledWith(
       'table2',
+      undefined,
+      expect.anything(),
       expect.anything(),
     )
     expect(hooks.onSelect).toHaveBeenCalledWith(
+      'table3',
       'tbl3',
+      expect.anything(),
       expect.anything(),
     )
     expect(hooks.onSelect).toHaveBeenCalledWith(
       'dbo.table4',
+      undefined,
+      expect.anything(),
       expect.anything(),
     )
     expect(hooks.onSelect).toHaveBeenCalledWith(
+      'dbo.table5',
       'tbl5',
+      expect.anything(),
       expect.anything(),
     )
   })
@@ -88,19 +100,27 @@ describe('filter tests', () => {
     expect(filter).toHaveBeenCalledWith('dbo.table5')
 
     expect(hooks.onSelect).toHaveBeenCalledWith(
+      'table1',
       'tbl1',
+      expect.anything(),
       expect.anything(),
     )
     expect(hooks.onSelect).toHaveBeenCalledWith(
+      'table2',
       'tbl2',
+      expect.anything(),
       expect.anything(),
     )
     expect(hooks.onSelect).toHaveBeenCalledWith(
       'dbo.table3',
+      undefined,
+      expect.anything(),
       expect.anything(),
     )
     expect(hooks.onSelect).toHaveBeenCalledWith(
+      'dbo.table5',
       'tbl5',
+      expect.anything(),
       expect.anything(),
     )
   })
@@ -129,16 +149,22 @@ describe('filter tests', () => {
     expect(filter).toHaveBeenCalledWith('table2')
 
     expect(hooks.onInsert).toHaveBeenCalledWith(
+      'table1',
+      undefined,
+      expect.anything(),
       table1row,
-      expect.anything(),
     )
     expect(hooks.onInsert).toHaveBeenCalledWith(
+      'table2',
+      undefined,
+      expect.anything(),
       table2rows[0],
-      expect.anything(),
     )
     expect(hooks.onInsert).toHaveBeenCalledWith(
-      table2rows[1],
+      'table2',
+      undefined,
       expect.anything(),
+      table2rows[1],
     )
   })
 
@@ -168,10 +194,12 @@ describe('filter tests', () => {
 
     expect(hooks.onUpdate).toHaveBeenCalledWith(
       'table1',
+      undefined,
       expect.anything(),
       table1Updates,
     )
     expect(hooks.onUpdate).toHaveBeenCalledWith(
+      'dbo.table2',
       'tbl2',
       expect.anything(),
       table2Updates,
@@ -201,9 +229,11 @@ describe('filter tests', () => {
 
     expect(hooks.onDelete).toHaveBeenCalledWith(
       'table1',
+      undefined,
       expect.anything(),
     )
     expect(hooks.onDelete).toHaveBeenCalledWith(
+      'dbo.table2',
       'tbl2',
       expect.anything(),
     )
@@ -243,25 +273,31 @@ describe('filter tests', () => {
     //assert
     expect(filter).toHaveBeenCalledWith('table1')
     expect(hooks.onSelect).toHaveBeenCalledWith(
+      'table1',
       'tbl1',
+      expect.anything(),
       expect.anything(),
     )
 
     expect(filter).toHaveBeenCalledWith('table2')
     expect(hooks.onInsert).toHaveBeenCalledWith(
-      insertedRow,
+      'table2',
+      undefined,
       expect.anything(),
+      insertedRow,
     )
 
     expect(filter).toHaveBeenCalledWith('dbo.table3')
     expect(hooks.onUpdate).toHaveBeenCalledWith(
       'dbo.table3',
+      undefined,
       expect.anything(),
       updates,
     )
 
     expect(filter).toHaveBeenCalledWith('dbo.table4')
     expect(hooks.onDelete).toHaveBeenCalledWith(
+      'dbo.table4',
       'tbl4',
       expect.anything(),
     )
@@ -295,21 +331,30 @@ describe('filter tests', () => {
 
     expect(hooks.onSelect).toHaveBeenCalledWith(
       'table1',
+      undefined,
+      expect.anything(),
       expect.anything(),
     )
     expect(hooks.onSelect).toHaveBeenCalledWith(
       'dbo.table2',
+      undefined,
+      expect.anything(),
       expect.anything(),
     )
     expect(hooks.onSelect).toHaveBeenCalledWith(
+      'table3',
       'tbl3',
       expect.anything(),
+      expect.anything(),
     )
     expect(hooks.onSelect).toHaveBeenCalledWith(
+      'table4',
       'tbl4',
+      expect.anything(),
       expect.anything(),
     )
   })
+
   test('count modify first', async () => {
     //arrange
     var knex = Knex({
@@ -335,6 +380,8 @@ describe('filter tests', () => {
     expect(filter).toHaveBeenCalledWith('table1')
     expect(hooks.onSelect).toHaveBeenCalledWith(
       'table1',
+      undefined,
+      expect.anything(),
       expect.anything(),
     )
   })
@@ -353,14 +400,14 @@ describe('filter tests', () => {
     registerFilter(filter, knex)
 
     //act
-    await knex
-      .table('table1')
-      .first('id', 'name')
+    await knex.table('table1').first('id', 'name')
 
     //assert
     expect(filter).toHaveBeenCalledWith('table1')
     expect(hooks.onSelect).toHaveBeenCalledWith(
       'table1',
+      undefined,
+      expect.anything(),
       expect.anything(),
     )
   })
@@ -385,8 +432,9 @@ describe('filter tests', () => {
     expect(filter).toHaveBeenCalledWith('table1')
     expect(hooks.onSelect).toHaveBeenCalledWith(
       'table1',
+      undefined,
+      expect.anything(),
       expect.anything(),
     )
   })
-
 })

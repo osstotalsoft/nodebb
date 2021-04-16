@@ -2,17 +2,26 @@ import Knex = require('knex')
 
 export interface Hooks {
   onSelect?: (
-    tableOrAlias: string,
+    table: string,
+    alias: string,
     queryBuilder: Knex.QueryBuilder,
+    clause: Knex.JoinClause | { table: string; only: boolean },
   ) => void
-  onInsert?: (inserted: any, queryBuilder: Knex.QueryBuilder) => void
+  onInsert?: (
+    table: string,
+    alias: string,
+    queryBuilder: Knex.QueryBuilder,
+    inserted: any,
+  ) => void
   onUpdate?: (
-    tableOrAlias: string,
+    table: string,
+    alias: string,
     queryBuilder: Knex.QueryBuilder,
     updates: any,
   ) => void
   onDelete?: (
-    tableOrAlias: string,
+    table: string,
+    alias: string,
     queryBuilder: Knex.QueryBuilder,
   ) => void
 }
