@@ -1,4 +1,4 @@
-import Knex = require('knex')
+import Knex = require('knex');
 
 /**
  *

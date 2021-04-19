@@ -11,14 +11,14 @@
     "tslint": "tslint -p tsconfig.json \"/**/*.ts\""
   },
   "devDependencies": {
-    "dtslint": "^3.6.12",
+    "dtslint": "^4.0.9",
     "eslint": "^7.2.0",
-    "eslint-plugin-jest": "^23.13.2",
+    "eslint-plugin-jest": "^24.3.5",
     "eslint-plugin-node": "^11.1.0",
     "jest": "^26.0.1",
     "jest-extended": "^0.11.5",
-    "lerna": "^3.22.1",
-    "typescript": "^3.9.5"
+    "lerna": "^4.0.0",
+    "typescript": "^4.2.4"
   },
   "workspaces": [
     "packages/*"

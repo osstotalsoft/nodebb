@@ -5,34 +5,68 @@ function applyOrMap(fn, objOrArray) {
 }
 
 function splitTableAndAlias(table) {
+  if (typeof table != 'string') {
+    return [null, null]
+  }
   return table
     .split(/ as /i)
     .map((x) => x.trim().replace(/[[\]]/g, ''))
 }
 
+function isFunction(f) {
+  return typeof f === 'function'
+}
+
 function applyOnInsertFilter(filter, queryBuilder) {
-  const [table] = splitTableAndAlias(queryBuilder._single.table)
+  const [table, alias] = splitTableAndAlias(
+    queryBuilder._single.table,
+  )
   const { onInsert } = filter(table)
   if (!onInsert) {
     return
   }
   applyOrMap(
-    (inserted) => onInsert(inserted, queryBuilder),
+    (inserted) => onInsert(table, alias, queryBuilder, inserted),
     queryBuilder._single.insert,
   )
 }
 
 function applyOnSelectFilter(filter, queryBuilder) {
-  let tables = queryBuilder._statements
-    .filter((st) => st.joinType !== undefined)
-    .map((st) => st.table)
-  tables.push(queryBuilder._single.table)
-  tables.map(splitTableAndAlias).forEach(([table, alias]) => {
+  const fromClause = queryBuilder._single
+  const joinClauses = queryBuilder._statements.filter(
+    (st) => st.joinType !== undefined,
+  )
+  const clauses = [fromClause, ...joinClauses]
+
+  const joinType2HookMapping = {
+    inner: 'innerJoin',
+    left: 'leftJoin',
+    'left outer': 'leftJoin',
+    right: 'rightJoin',
+    'right outer': 'rightJoin',
+    full: 'fullOuterJoin',
+    'full outer': 'fullOuterJoin',
+    cross: 'crossJoin',
+  }
+
+  clauses.forEach((clause) => {
+    const [table, alias] = splitTableAndAlias(clause.table)
     const { onSelect } = filter(table)
+
     if (!onSelect) {
       return
     }
-    onSelect(alias ?? table, queryBuilder)
+
+    const hook = isFunction(onSelect)
+      ? onSelect
+      : onSelect[
+          clause.joinType
+            ? joinType2HookMapping[clause.joinType]
+            : 'from'
+        ]
+    if (hook && isFunction(hook)) {
+      hook(table, alias, queryBuilder, clause)
+    }
   })
 }
 
@@ -44,7 +78,7 @@ function applyOnUpdateFilter(filter, queryBuilder) {
   if (!onUpdate) {
     return
   }
-  onUpdate(alias ?? table, queryBuilder, queryBuilder._single.update)
+  onUpdate(table, alias, queryBuilder, queryBuilder._single.update)
 }
 
 function applyOnDeleteFilter(filter, queryBuilder) {
@@ -55,7 +89,7 @@ function applyOnDeleteFilter(filter, queryBuilder) {
   if (!onDelete) {
     return
   }
-  onDelete(alias ?? table, queryBuilder)
+  onDelete(table, alias, queryBuilder)
 }
 
 function applyFilter(filter, queryBuilder) {
