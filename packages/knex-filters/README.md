@@ -12,32 +12,67 @@ With knex-filters you can register some hooks for some or any of your tables, th
 ## filter
 A filter is a function that receives a table and returns the hooks
 ```javascript
-export type Filter = (table: string) => Hooks
-export interface Hooks {
-  onSelect?: (
-    table: string,
-    alias: string,
-    queryBuilder: Knex.QueryBuilder,
-    clause: Knex.JoinClause | { table: string; only: boolean },
-  ) => void
-  onInsert?: (
-    table: string,
-    alias: string,
-    queryBuilder: Knex.QueryBuilder,
-    inserted: any,
-  ) => void
-  onUpdate?: (
-    table: string,
-    alias: string,
-    queryBuilder: Knex.QueryBuilder,
-    updates: any,
-  ) => void
-  onDelete?: (
-    table: string,
-    alias: string,
-    queryBuilder: Knex.QueryBuilder,
-  ) => void
+export interface FromClause {
+  table: string
+  only: boolean
 }
+export type FromHook = (
+  table: string,
+  alias: string,
+  queryBuilder: Knex.QueryBuilder,
+  clause: FromClause,
+) => void
+
+export type JoinHook = (
+  table: string,
+  alias: string,
+  queryBuilder: Knex.QueryBuilder,
+  clause: Knex.JoinClause,
+) => void
+export interface AdvancedSelectHooks {
+  from: FromHook
+  innerJoin: JoinHook
+  leftJoin: JoinHook
+  rightJoin: JoinHook
+  fullOuterJoin: JoinHook
+  crossJoin: JoinHook
+}
+
+export type SimpleSelectHook = (
+  table: string,
+  alias: string,
+  queryBuilder: Knex.QueryBuilder,
+  clause: FromClause | Knex.JoinClause,
+) => void
+
+export type InsertHook = (
+  table: string,
+  alias: string,
+  queryBuilder: Knex.QueryBuilder,
+  inserted: any,
+) => void
+
+export type UpdateHook = (
+  table: string,
+  alias: string,
+  queryBuilder: Knex.QueryBuilder,
+  updates: any,
+) => void
+
+export type DeleteHook = (
+  table: string,
+  alias: string,
+  queryBuilder: Knex.QueryBuilder,
+) => void
+
+export interface Hooks {
+  onSelect?: SimpleSelectHook | AdvancedSelectHooks
+  onInsert?: InsertHook
+  onUpdate?: UpdateHook
+  onDelete?: DeleteHook
+}
+
+export type Filter = (table: string) => Hooks
 ```
 
 ## createfilter
@@ -47,7 +82,7 @@ const filter = createFilter(
     (table)=> table == 'Products', 
     {
         onSelect: (table, alias, queryBuilder, clause) => {
-            queryBuilder.andWhere(`[${alias ?? table}].[isDeleted]`,'=',false,)
+            queryBuilder.andWhere(`[${alias ?? table}].[isDeleted]`,'=',false)
         },
     },
   })
@@ -101,13 +136,10 @@ async function registerTenancyFilter(columnTenantId, tenantId, knex) {
   }
 
   const filter = createFilter(tableHasColumnTenantId, {
-    onSelect: (table, alias, queryBuilder, clause) => {
-      const leftJoinTypes = ['left', 'left outer']
-      if (leftJoinTypes.includes(clause.joinType)) {
-        addOnTenantIdClause(table, alias, queryBuilder, clause)
-      } else {
-        addWhereTenantIdClause(table, alias, queryBuilder)
-      }
+    onSelect: {
+      from: addWhereTenantIdClause,
+      innerJoin: addWhereTenantIdClause,
+      leftJoin: addOnTenantIdClause,
     },
     onUpdate: addWhereTenantIdClause,
     onDelete: addWhereTenantIdClause,

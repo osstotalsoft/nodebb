@@ -29,13 +29,10 @@ async function registerTenancyFilter(columnTenantId, tenantId, knex) {
   }
 
   const filter = createFilter(tableHasColumnTenantId, {
-    onSelect: (table, alias, queryBuilder, clause) => {
-      const leftJoinTypes = ['left', 'left outer']
-      if (leftJoinTypes.includes(clause.joinType)) {
-        addOnTenantIdClause(table, alias, queryBuilder, clause)
-      } else {
-        addWhereTenantIdClause(table, alias, queryBuilder)
-      }
+    onSelect: {
+      from: addWhereTenantIdClause,
+      innerJoin: addWhereTenantIdClause,
+      leftJoin: addOnTenantIdClause,
     },
     onUpdate: addWhereTenantIdClause,
     onDelete: addWhereTenantIdClause,

@@ -1,29 +1,63 @@
-import { Knex } from 'knex'
+import Knex = require('knex');
+
+export interface FromClause {
+  table: string
+  only: boolean
+}
+export type FromHook = (
+  table: string,
+  alias: string,
+  queryBuilder: Knex.QueryBuilder,
+  clause: FromClause,
+) => void
+
+export type JoinHook = (
+  table: string,
+  alias: string,
+  queryBuilder: Knex.QueryBuilder,
+  clause: Knex.JoinClause,
+) => void
+export interface AdvancedSelectHooks {
+  from: FromHook
+  innerJoin: JoinHook
+  leftJoin: JoinHook
+  rightJoin: JoinHook
+  fullOuterJoin: JoinHook
+  crossJoin: JoinHook
+}
+
+export type SimpleSelectHook = (
+  table: string,
+  alias: string,
+  queryBuilder: Knex.QueryBuilder,
+  clause: FromClause | Knex.JoinClause,
+) => void
+
+export type InsertHook = (
+  table: string,
+  alias: string,
+  queryBuilder: Knex.QueryBuilder,
+  inserted: any,
+) => void
+
+export type UpdateHook = (
+  table: string,
+  alias: string,
+  queryBuilder: Knex.QueryBuilder,
+  updates: any,
+) => void
+
+export type DeleteHook = (
+  table: string,
+  alias: string,
+  queryBuilder: Knex.QueryBuilder,
+) => void
 
 export interface Hooks {
-  onSelect?: (
-    table: string,
-    alias: string,
-    queryBuilder: Knex.QueryBuilder,
-    clause: Knex.JoinClause | { table: string; only: boolean },
-  ) => void
-  onInsert?: (
-    table: string,
-    alias: string,
-    queryBuilder: Knex.QueryBuilder,
-    inserted: any,
-  ) => void
-  onUpdate?: (
-    table: string,
-    alias: string,
-    queryBuilder: Knex.QueryBuilder,
-    updates: any,
-  ) => void
-  onDelete?: (
-    table: string,
-    alias: string,
-    queryBuilder: Knex.QueryBuilder,
-  ) => void
+  onSelect?: SimpleSelectHook | AdvancedSelectHooks
+  onInsert?: InsertHook
+  onUpdate?: UpdateHook
+  onDelete?: DeleteHook
 }
 
 export type Filter = (table: string) => Hooks

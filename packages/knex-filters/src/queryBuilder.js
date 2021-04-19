@@ -13,6 +13,10 @@ function splitTableAndAlias(table) {
     .map((x) => x.trim().replace(/[[\]]/g, ''))
 }
 
+function isFunction(f) {
+  return typeof f === 'function'
+}
+
 function applyOnInsertFilter(filter, queryBuilder) {
   const [table, alias] = splitTableAndAlias(
     queryBuilder._single.table,
@@ -32,16 +36,37 @@ function applyOnSelectFilter(filter, queryBuilder) {
   const joinClauses = queryBuilder._statements.filter(
     (st) => st.joinType !== undefined,
   )
-
   const clauses = [fromClause, ...joinClauses]
+
+  const joinType2HookMapping = {
+    inner: 'innerJoin',
+    left: 'leftJoin',
+    'left outer': 'leftJoin',
+    right: 'rightJoin',
+    'right outer': 'rightJoin',
+    full: 'fullOuterJoin',
+    'full outer': 'fullOuterJoin',
+    cross: 'crossJoin',
+  }
 
   clauses.forEach((clause) => {
     const [table, alias] = splitTableAndAlias(clause.table)
     const { onSelect } = filter(table)
+
     if (!onSelect) {
       return
     }
-    onSelect(table, alias, queryBuilder, clause)
+
+    const hook = isFunction(onSelect)
+      ? onSelect
+      : onSelect[
+          clause.joinType
+            ? joinType2HookMapping[clause.joinType]
+            : 'from'
+        ]
+    if (hook && isFunction(hook)) {
+      hook(table, alias, queryBuilder, clause)
+    }
   })
 }
 

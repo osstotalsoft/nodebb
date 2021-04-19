@@ -1,21 +1,21 @@
 {
-    "compilerOptions": {
-      "module": "CommonJS",
-      "target": "es5",
-      "lib": ["es6"],
-      "moduleResolution": "node",
-      "forceConsistentCasingInFileNames": true,
-      "strict": true,
-      "noEmit": true,
-      "experimentalDecorators": true,
-      "baseUrl": "./",
-      "allowSyntheticDefaultImports": true,
-      "noErrorTruncation": true,
-      "allowJs": true,
-      "paths": {
-        "@totalsoft/message-bus": ["./packages/message-bus"],
-        "@totalsoft/messaging-host": ["./packages/messaging-host"]
-      }
-    },
-    "exclude": ["**/build/"]
-  }
+  "compilerOptions": {
+    "module": "CommonJS",
+    "target": "ES2017",
+    "lib": ["es6"],
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "baseUrl": "./",
+    "noErrorTruncation": true,
+    "allowJs": true,
+    "paths": {
+      "@totalsoft/message-bus": ["./packages/message-bus"],
+      "@totalsoft/messaging-host": ["./packages/messaging-host"]
+    }
+  },
+  "exclude": ["**/build/"]
+}
