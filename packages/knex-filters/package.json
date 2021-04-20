@@ -27,7 +27,7 @@
     "ramda": "^0.27.1"
   },
   "peerDependencies": {
-    "knex": "^0.95.4"
+    "knex": "^0.21.0"
   },
   "devDependencies": {
     "bluebird": "^3.7.2",
