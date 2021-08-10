@@ -2,5 +2,7 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "licenser.license": "Custom", 
+  "licenser.customHeader": "Copyright (c) TotalSoft.\nThis source code is licensed under the MIT license."
 }
