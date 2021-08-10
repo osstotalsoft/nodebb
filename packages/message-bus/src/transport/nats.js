@@ -1,3 +1,6 @@
+// Copyright (c) TotalSoft.
+// This source code is licensed under the MIT license.
+
 const nats = require('node-nats-streaming')
 const { v4 } = require('uuid')
 const Promise = require('bluebird')

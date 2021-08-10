@@ -1,3 +1,6 @@
+// Copyright (c) TotalSoft.
+// This source code is licensed under the MIT license.
+
 const { messagingHost } = require('../../messagingHost')
 const { correlation } = require('../correlation')
 const { envelope } = require('@totalsoft/message-bus')

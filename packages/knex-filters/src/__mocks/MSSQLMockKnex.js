@@ -1,3 +1,6 @@
+// Copyright (c) TotalSoft.
+// This source code is licensed under the MIT license.
+
 /* eslint-disable node/no-unpublished-require */
 const Promise = require('bluebird')
 const _ = require('lodash')

@@ -1,3 +1,6 @@
+// Copyright (c) TotalSoft.
+// This source code is licensed under the MIT license.
+
 const { dispatcher } = require('../dispatcher')
 const { messagingHost } = require('../../messagingHost')
 

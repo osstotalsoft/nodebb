@@ -1,3 +1,6 @@
+// Copyright (c) TotalSoft.
+// This source code is licensed under the MIT license.
+
 const messageBus = require('@totalsoft/message-bus')
 const { empty, concat, run } = require('./pipeline')
 

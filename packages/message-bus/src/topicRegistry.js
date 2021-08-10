@@ -1,3 +1,6 @@
+// Copyright (c) TotalSoft.
+// This source code is licensed under the MIT license.
+
 const topicPrefix =
   (process.env.Messaging__Env
     ? process.env.Messaging__Env + '.'

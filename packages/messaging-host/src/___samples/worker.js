@@ -1,3 +1,6 @@
+// Copyright (c) TotalSoft.
+// This source code is licensed under the MIT license.
+
 process.env.NATS_CLIENT_ID = 'nodebb_sample'
 process.env.NATS_Q_GROUP = 'nodebb_sample'
 
