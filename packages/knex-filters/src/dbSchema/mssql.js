@@ -2,15 +2,9 @@ const R = require('ramda')
 
 async function getTablesWithColumn(column, knex) {
   const data = await knex
-    .select('t.name as [table]', 's.name as [schema]')
-    .from('sys.tables as t')
-    .join('sys.schemas as s', 't.schema_id', 's.schema_id')
-    .whereExists(function () {
-      this.select('*')
-        .from('sys.columns as c')
-        .whereRaw('c.object_id = t.object_id')
-        .andWhere(`c.name`, '=', column)
-    })
+    .distinct('TABLE_NAME as [table]', 'TABLE_SCHEMA as [schema]')
+    .from('INFORMATION_SCHEMA.COLUMNS')
+    .where('COLUMN_NAME', '=', column)
   return data
 }
 
