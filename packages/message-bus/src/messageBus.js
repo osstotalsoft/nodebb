@@ -1,3 +1,6 @@
+// Copyright (c) TotalSoft.
+// This source code is licensed under the MIT license.
+
 const transport = require('./transport')
 const topicRegistry = require('./topicRegistry')
 const serDes = require('./serDes')

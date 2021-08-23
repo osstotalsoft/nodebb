@@ -1,3 +1,6 @@
+// Copyright (c) TotalSoft.
+// This source code is licensed under the MIT license.
+
 import { Context, Envelope, EnvelopeCustomizer } from './envelope'
 import { SubscriptionOptions } from './subscriptionOptions'
 import { Subscription } from './transport'

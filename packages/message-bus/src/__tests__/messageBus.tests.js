@@ -1,3 +1,6 @@
+// Copyright (c) TotalSoft.
+// This source code is licensed under the MIT license.
+
 jest.resetModules()
 process.env.Messaging__TopicPrefix = ''
 jest.mock('../transport')

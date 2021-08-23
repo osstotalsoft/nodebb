@@ -1,3 +1,6 @@
+// Copyright (c) TotalSoft.
+// This source code is licensed under the MIT license.
+
 const Knex = require('knex')
 const mockDb = require('mock-knex')
 const { buildTableHasColumnPredicate } = require('../mssql')

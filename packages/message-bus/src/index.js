@@ -1,3 +1,6 @@
+// Copyright (c) TotalSoft.
+// This source code is licensed under the MIT license.
+
 const messageBus = require('./messageBus')
 const { SubscriptionOptions } = require('./subscriptionOptions')
 const transport = require('./transport')

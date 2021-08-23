@@ -1,3 +1,6 @@
+// Copyright (c) TotalSoft.
+// This source code is licensed under the MIT license.
+
 export interface Context {
   correlationId?: any
   tenantId?: any

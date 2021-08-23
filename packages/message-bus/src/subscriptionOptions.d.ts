@@ -1,3 +1,6 @@
+// Copyright (c) TotalSoft.
+// This source code is licensed under the MIT license.
+
 export enum SubscriptionOptions {
   /**
    * Event driven subscriptions: durable, at-least-once, within a queue group

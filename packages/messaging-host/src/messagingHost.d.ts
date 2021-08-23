@@ -1,3 +1,6 @@
+// Copyright (c) TotalSoft.
+// This source code is licensed under the MIT license.
+
 import { Envelope, SubscriptionOptions } from '@totalsoft/message-bus'
 
 export type MessagingHostMiddleware = (

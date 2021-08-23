@@ -1,3 +1,6 @@
+// Copyright (c) TotalSoft.
+// This source code is licensed under the MIT license.
+
 // eslint-disable-next-line node/no-extraneous-require
 require('jest-extended')
 const { messagingHost } = require('../messagingHost')

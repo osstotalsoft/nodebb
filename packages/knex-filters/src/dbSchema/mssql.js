@@ -1,3 +1,6 @@
+// Copyright (c) TotalSoft.
+// This source code is licensed under the MIT license.
+
 const R = require('ramda')
 
 async function getTablesWithColumn(column, knex) {
