@@ -32,5 +32,7 @@ lerna publish major
 ``` 
 
 ## License
-
 NodeBB is licensed under the [MIT](LICENSE) license.
+
+## Contributing
+When using Visual Studio Code please use the extension [`Licenser`](https://marketplace.visualstudio.com/items?itemName=ymotongpoo.licenser) for applying the license header in files.
