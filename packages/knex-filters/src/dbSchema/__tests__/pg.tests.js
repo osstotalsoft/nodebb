@@ -3,14 +3,14 @@
 
 const Knex = require('knex')
 const mockDb = require('mock-knex')
-const { buildTableHasColumnPredicate } = require('../mssql')
+const { buildTableHasColumnPredicate } = require('../pg')
 const R = require('ramda')
 
-describe('mssql dbSchema tests', () => {
+describe('postgreSql dbSchema tests', () => {
   test('buildTableHasColumnPredicate', async () => {
     //arrange
     var knex = Knex({
-      client: 'mssql',
+      client: 'pg',
     })
     mockDb.mock(knex)
     var tracker = mockDb.getTracker()
@@ -19,19 +19,21 @@ describe('mssql dbSchema tests', () => {
       if (
         query.method == 'raw' &&
         query.sql ==
-          'select SCHEMA_NAME() as [schema], DB_NAME() as [db]'
+          'select current_schema() as "schema", current_database() as "db"'
       ) {
-        query.response([
-          {
-            schema: 'dbo',
-            db: 'MyDb',
-          },
-        ])
+        query.response({
+          rows: [
+            {
+              schema: 'public',
+              db: 'mydb',
+            },
+          ],
+        })
       } else {
         query.response([
           {
-            table: 'MyTable',
-            schema: 'dbo',
+            table: 'mytable',
+            schema: 'public',
           },
         ])
       }
@@ -46,33 +48,28 @@ describe('mssql dbSchema tests', () => {
     //assert
     expect(predicate('MyTable')).toBe(true)
     expect(predicate('OtherTable')).toBe(false)
-    expect(predicate('[MyTable]')).toBe(true)
-    expect(predicate('dbo.MyTable')).toBe(true)
-    expect(predicate('[dbo].[MyTable]')).toBe(true)
-    expect(predicate('[otherSchema].[MyTable]')).toBe(false)
-    expect(predicate('[MyDb].[dbo].[MyTable]')).toBe(true)
-    expect(predicate('MyDb.dbo.MyTable')).toBe(true)
-    expect(predicate('OtherDb.dbo.MyTable')).toBe(false)
+    expect(predicate('"MyTable"')).toBe(true)
+    expect(predicate('public.MyTable')).toBe(true)
+    expect(predicate('"public"."MyTable"')).toBe(true)
+    expect(predicate('"otherSchema"."MyTable"')).toBe(false)
+    expect(predicate('"MyDb"."public"."MyTable"')).toBe(true)
+    expect(predicate('MyDb.public.MyTable')).toBe(true)
+    expect(predicate('OtherDb.public.MyTable')).toBe(false)
   })
 
   it('Calls the expected queries:', async () => {
     //arrange
     const getDefaultsQuery =
-      'select SCHEMA_NAME() as [schema], DB_NAME() as [db]'
+      'select current_schema() as "schema", current_database() as "db"'
     const getTableListQuery =
-      'select distinct [TABLE_NAME] as [table], [TABLE_SCHEMA] as [schema] from [INFORMATION_SCHEMA].[COLUMNS] where [COLUMN_NAME] = @p0'
+      'select distinct "table_name" as "table", "table_schema" as "schema" from "information_schema"."columns" where "column_name" = $1'
     const spyListener = jest.fn()
     const callsPath = ['mock', 'calls']
     const getFirstCallQuery = R.path([...callsPath, 0, 0, 'sql'])
-    const secondCallPath = [...callsPath, 1, 0]
-    const getSecondCallQuery = R.path([...secondCallPath, 'sql'])
-    const getSecondCallBinding = R.compose(
-      R.head,
-      R.path([...secondCallPath, 'bindings']),
-    )
+    const getSecondCallQuery = R.path([...callsPath, 1, 0, 'sql'])
 
     var knex = Knex({
-      client: 'mssql',
+      client: 'pg',
     })
     mockDb.mock(knex)
     var tracker = mockDb.getTracker()
@@ -86,6 +83,5 @@ describe('mssql dbSchema tests', () => {
     expect(spyListener.mock.calls).toHaveLength(2)
     expect(getFirstCallQuery(spyListener)).toBe(getDefaultsQuery)
     expect(getSecondCallQuery(spyListener)).toBe(getTableListQuery)
-    expect(getSecondCallBinding(spyListener)).toBe('TenantId')
   })
 })

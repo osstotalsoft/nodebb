@@ -1,7 +1,7 @@
 // Copyright (c) TotalSoft.
 // This source code is licensed under the MIT license.
 
-import Knex = require('knex');
+import Knex = require('knex')
 
 /**
  *
@@ -11,4 +11,4 @@ import Knex = require('knex');
 export function buildTableHasColumnPredicate(
   column: string,
   knex: Knex<any, any>,
-): (table: string) => boolean
+): Promise<(table: string) => boolean>
