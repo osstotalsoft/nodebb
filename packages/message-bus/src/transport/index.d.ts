@@ -10,11 +10,15 @@ export interface Subscription {
   unsubscribe: () => Promise<void>
 }
 
-export function connect(): Promise<Connection>
-export function disconnect(): Promise<void>
-export function publish(subject: string, msg: any): Promise<void>
-export function subscribe(
-  subject: string,
-  handler: MessageHandler,
-  opts: SubscriptionOptions,
-): Promise<Subscription>
+export interface Transport {
+  connect(): Promise<Connection>
+  disconnect(): Promise<void>
+  publish(subject: string, msg: any): Promise<void>
+  subscribe(
+    subject: string,
+    handler: MessageHandler,
+    opts: SubscriptionOptions,
+  ): Promise<Subscription>
+}
+
+export const nats: Transport

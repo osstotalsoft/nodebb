@@ -42,7 +42,7 @@ messagingHost()
     ])
     .use(exceptionHandling())
     .use(correlation())
-    .use(mdispatcher(msgHandlers))
+    .use(dispatcher(msgHandlers))
     .start()
 ```
 ```terminal
@@ -93,7 +93,7 @@ export interface Headers {
   [propName: string]: any;
 }
 ```
-You hook the middlewares with the *use* func:
+You hook the middleware with the *use* func:
 ```javascript
 const { messagingHost } = require("@totalsoft/messaging-host")
 
@@ -104,10 +104,10 @@ messagingHost()
     .start()
 ```
 
-You can mix built-in provided middlewares with custom ones.
+You can mix built-in provided middleware with custom ones.
 
-## built-in middlewares
-The messaging host provides some built-in middlewares
+## built-in middleware
+The messaging host provides some built-in middleware
 ```javascript
 messagingHost()
     .use(exceptionHandling())
@@ -126,7 +126,7 @@ Typically configured very early in the pipeline, it swallows exceptions and logs
 messagingHost()
     .use(correlation())
 ```
-Typically configured early in the pipeline, it has the role to fetch the correlation id from the received message or create a new one if the incomming message does not have one. It will persist the correlation id in the context obj.
+Typically configured early in the pipeline, it has the role to fetch the correlation id from the received message or create a new one if the incoming message does not have one. It will persist the correlation id in the context obj.
 
 ### built-in dispatcher middleware
 ```javascript

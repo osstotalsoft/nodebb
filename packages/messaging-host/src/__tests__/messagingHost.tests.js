@@ -4,25 +4,24 @@
 // eslint-disable-next-line node/no-extraneous-require
 require('jest-extended')
 const { messagingHost } = require('../messagingHost')
-const messageBus = require('@totalsoft/message-bus')
 
 global.console = {
   log: jest.fn(),
   info: jest.fn(),
-  error: jest.fn()
+  error: jest.fn(),
 }
 
 describe('MessagingHost tests', () => {
   beforeEach(() => {
-    messageBus.__clearMocks()
     jest.useFakeTimers()
   })
 
   test('2 topics and 2 middlewares', async () => {
     //Arrange
     console.info = jest.fn()
-    messageBus.__mockSubscriptionOnce({ headers: {}, payload: {} })
-    messageBus.__mockSubscriptionOnce(/*no events*/)
+    const msgHost = messagingHost()
+    msgHost._messageBus.__mockSubscriptionOnce({ headers: {}, payload: {} })
+    msgHost._messageBus.__mockSubscriptionOnce(/*no events*/)
 
     const firstMiddleware = jest.fn(async (_ctx, next) => {
       await next()
@@ -35,7 +34,7 @@ describe('MessagingHost tests', () => {
     const topic2 = 'topic2'
 
     //Act
-    await messagingHost()
+    await msgHost
       .subscribe([topic1, topic2])
       .use(firstMiddleware)
       .use(secondMiddleware)

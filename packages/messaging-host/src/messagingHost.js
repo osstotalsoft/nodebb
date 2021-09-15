@@ -1,7 +1,7 @@
 // Copyright (c) TotalSoft.
 // This source code is licensed under the MIT license.
 
-const messageBus = require('@totalsoft/message-bus')
+const { messageBus } = require('@totalsoft/message-bus')
 const { empty, concat, run } = require('./pipeline')
 
 function messagingHost() {
@@ -9,6 +9,7 @@ function messagingHost() {
   let pipeline = empty
   let subscriptions = null
   let connection = null
+  let msgBus = messageBus()
 
   function use(middleware) {
     pipeline = concat(middleware, pipeline)
@@ -23,18 +24,17 @@ function messagingHost() {
   }
 
   async function start() {
-    connection = await messageBus.transport.connect()
+    connection = await msgBus.transport.connect()
     connection.on('error', onConnectionErrorOrClosed)
     connection.on('close', onConnectionErrorOrClosed)
 
-    const subs = Object.entries(
-      subscriptionOptions,
-    ).map(([topic, opts]) =>
-      messageBus.subscribe(
-        topic,
-        (msg) => run(pipeline, _contextFactory(topic, msg)),
-        opts,
-      ),
+    const subs = Object.entries(subscriptionOptions).map(
+      ([topic, opts]) =>
+        msgBus.subscribe(
+          topic,
+          (msg) => run(pipeline, _contextFactory(topic, msg)),
+          opts,
+        ),
     )
     subscriptions = await Promise.all(subs)
     console.info(`🚀  Messaging host ready`)
@@ -51,7 +51,7 @@ function messagingHost() {
     await Promise.allSettled(
       subscriptions.map((subscription) => subscription.unsubscribe()),
     )
-    await messageBus.transport.disconnect()
+    await msgBus.transport.disconnect()
   }
 
   function stopImmediate() {
@@ -64,7 +64,7 @@ function messagingHost() {
       subscriptions.forEach((subscription) => {
         subscription.unsubscribe()
       })
-      messageBus.transport.disconnect()
+      msgBus.transport.disconnect()
     } catch {
       //there is nothing we can do
     }
@@ -85,6 +85,7 @@ function messagingHost() {
     stop,
     stopImmediate,
     _contextFactory,
+    _messageBus: msgBus,
   }
 }
 

@@ -3,7 +3,7 @@
 
 jest.resetModules()
 process.env.Messaging__TopicPrefix = ''
-jest.mock('../transport')
+jest.mock('../transport/nats')
 
 global.console = {
   log: jest.fn(),
@@ -11,49 +11,25 @@ global.console = {
   error: jest.fn(),
 }
 
-const messageBus = require('../messageBus')
-const { publish, subscribe } = require('../transport')
+const { messageBus, useTransport } = require('../messageBus')
+const natsTransportMock = require('../transport/nats')
 const serDes = require('../serDes')
 const { envelope } = require('../envelope')
 
-const subscription = {
-  unsubscribe: jest.fn(),
-  on: jest.fn(),
-}
-
-const yieldsEvent = (_subject, handler) => {
-  const msg = `{"payload":{},"headers":{"nbb-correlationId":"some-correlation-id"}}`
-  setTimeout(() => {
-    handler({
-      getSequence: jest.fn(() => ''),
-      getData: jest.fn(() => msg),
-    })
-  }, 100)
-  return Promise.resolve(subscription)
-}
-
-const yieldsNoEvent = (_subject, _handler) => {
-  return Promise.resolve(subscription)
-}
-
 describe('MessageBus tests', () => {
   beforeEach(() => {
-    publish.mockReset()
-    subscribe.mockReset()
-    subscription.unsubscribe.mockReset()
+    natsTransportMock.__resetMocks()
   })
 
   test('sendCommandAndReceiveEvent when subscriptions yield events', async () => {
     //arrange
-    publish.mockResolvedValue()
-    subscribe
-      .mockImplementationOnce(yieldsEvent)
-      .mockImplementationOnce(yieldsNoEvent)
+    const msg = `{"payload":{},"headers":{"nbb-correlationId":"some-correlation-id"}}`
+    natsTransportMock.__mockSubscriptionOnce_YieldsMsg(msg)
+    natsTransportMock.__mockSubscriptionOnce_YieldsNoMsg()
 
+    const msgBus = messageBus()
     //act
-    const [
-      topic,
-    ] = await messageBus.sendCommandAndReceiveEvent(
+    const [topic] = await msgBus.sendCommandAndReceiveEvent(
       'topic-cmd',
       {},
       ['topic-ev1', 'topic-ev2'],
@@ -62,20 +38,22 @@ describe('MessageBus tests', () => {
 
     //assert
     expect(topic).toBe('topic-ev1')
-    expect(subscribe).toHaveBeenCalledTimes(2)
-    expect(publish).toHaveBeenCalled()
-    expect(subscription.unsubscribe).toHaveBeenCalledTimes(2)
+    expect(natsTransportMock.subscribe).toHaveBeenCalledTimes(2)
+    expect(natsTransportMock.publish).toHaveBeenCalled()
+    expect(
+      natsTransportMock.subscription.unsubscribe,
+    ).toHaveBeenCalledTimes(2)
   })
 
   test('sendCommandAndReceiveEvent when subscriptions yield no events', async () => {
     //arrange
-    publish.mockResolvedValue()
-    subscribe
-      .mockImplementationOnce(yieldsNoEvent)
-      .mockImplementationOnce(yieldsNoEvent)
+    natsTransportMock.__mockSubscriptionOnce_YieldsNoMsg()
+    natsTransportMock.__mockSubscriptionOnce_YieldsNoMsg()
+
+    const msgBus = messageBus()
 
     //act
-    const promise = messageBus.sendCommandAndReceiveEvent(
+    const promise = msgBus.sendCommandAndReceiveEvent(
       'topic-cmd',
       {},
       ['topic-ev1', 'topic-ev2'],
@@ -89,22 +67,24 @@ describe('MessageBus tests', () => {
       new Error('Message timeout occured.'),
     )
 
-    expect(subscribe).toHaveBeenCalledTimes(2)
-    expect(publish).toHaveBeenCalled()
-    expect(subscription.unsubscribe).toHaveBeenCalledTimes(2)
+    expect(natsTransportMock.subscribe).toHaveBeenCalledTimes(2)
+    expect(natsTransportMock.publish).toHaveBeenCalled()
+    expect(
+      natsTransportMock.subscription.unsubscribe,
+    ).toHaveBeenCalledTimes(2)
   })
 
   test('sendCommandAndReceiveEvent with envelopeCustomizer', async () => {
     //arrange
-    publish.mockResolvedValue()
-    subscribe
-      .mockImplementationOnce(yieldsEvent)
-      .mockImplementationOnce(yieldsNoEvent)
+    const msg = `{"payload":{},"headers":{"nbb-correlationId":"some-correlation-id"}}`
+    natsTransportMock.__mockSubscriptionOnce_YieldsMsg(msg)
+    natsTransportMock.__mockSubscriptionOnce_YieldsNoMsg()
 
     const envelopeCustomizer = jest.fn((x) => x)
+    const msgBus = messageBus()
 
     //act
-    const [topic] = await messageBus.sendCommandAndReceiveEvent(
+    const [topic] = await msgBus.sendCommandAndReceiveEvent(
       'topic-cmd',
       {},
       ['topic-ev1', 'topic-ev2'],
@@ -115,39 +95,61 @@ describe('MessageBus tests', () => {
     //assert
     expect(topic).toBe('topic-ev1')
     expect(envelopeCustomizer).toHaveBeenCalled()
-    expect(subscribe).toHaveBeenCalledTimes(2)
-    expect(publish).toHaveBeenCalled()
-    expect(subscription.unsubscribe).toHaveBeenCalledTimes(2)
+    expect(natsTransportMock.subscribe).toHaveBeenCalledTimes(2)
+    expect(natsTransportMock.publish).toHaveBeenCalled()
+    expect(
+      natsTransportMock.subscription.unsubscribe,
+    ).toHaveBeenCalledTimes(2)
   })
 
   test('publish without context', async () => {
     //arrange
-    publish.mockResolvedValue()
+    const msgBus = messageBus()
 
     //act
-    await messageBus.publish('topic', {})
+    await msgBus.publish('topic', {})
 
     //assert
-    expect(publish).toHaveBeenCalled()
+    expect(natsTransportMock.publish).toHaveBeenCalled()
   })
 
   test('publish with context', async () => {
     //arrange
-    publish.mockResolvedValue()
     const ctx = {
       correlationId: 'some-correlation-id',
       tenantId: 'some-tenant-id',
     }
+    const msgBus = messageBus()
 
     //act
-    await messageBus.publish('topic', {}, ctx)
+    await msgBus.publish('topic', {}, ctx)
 
     //assert
-    expect(publish).toHaveBeenCalled()
-    const publishedMsg = serDes.deSerialize(publish.mock.calls[0][1])
+    expect(natsTransportMock.publish).toHaveBeenCalled()
+    const publishedMsg = serDes.deSerialize(
+      natsTransportMock.publish.mock.calls[0][1],
+    )
     expect(envelope.getCorrelationId(publishedMsg)).toBe(
       ctx.correlationId,
     )
     expect(envelope.getTenantId(publishedMsg)).toBe(ctx.tenantId)
+  })
+
+  test('useTransport', async () => {
+    //arrange
+    const transport1 = {
+    }
+
+    const transport2 = {
+    }
+
+    //act
+    useTransport(transport1)
+    const msgBus = messageBus()
+    useTransport(transport2)
+
+
+    //assert
+    expect(msgBus.transport).toBe(transport1)
   })
 })
