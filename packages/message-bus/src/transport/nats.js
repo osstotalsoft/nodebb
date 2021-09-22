@@ -83,16 +83,17 @@ async function disconnect() {
   }
 }
 
-async function publish(subject, msg) {
+async function publish(subject, envelope, serDes) {
   const client = await connect()
   const _publish = Promise.promisify(client.publish, {
     context: client,
   })
+  const msg = serDes.serialize(envelope)
   const result = await _publish(subject, msg)
   return result
 }
 
-async function subscribe(subject, handler, opts) {
+async function subscribe(subject, handler, opts, serDes) {
   const client = await connect()
   const natsOpts = client.subscriptionOptions()
   let useQGroup = false
@@ -135,7 +136,8 @@ async function subscribe(subject, handler, opts) {
     : client.subscribe(subject, natsOpts)
 
   subscription.on('message', (msg) => {
-    handler(msg)
+    const envelope = serDes.deserialize(msg.getData())
+    handler(envelope)
     if (natsOpts.manualAcks) {
       msg.ack()
     }

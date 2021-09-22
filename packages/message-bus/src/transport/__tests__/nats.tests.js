@@ -2,6 +2,7 @@
 // This source code is licensed under the MIT license.
 
 const { SubscriptionOptions } = require('../../subscriptionOptions')
+const serDes = require('../../serDes')
 
 global.console = {
   log: jest.fn(),
@@ -74,7 +75,7 @@ describe('Nats tests', () => {
     const msg = {}
 
     //act
-    await natsTransport.publish(subject, msg)
+    await natsTransport.publish(subject, msg, serDes)
 
     //assert
     expect(natsClient.connect).toHaveBeenCalled()

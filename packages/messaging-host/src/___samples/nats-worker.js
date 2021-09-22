@@ -5,7 +5,6 @@ process.env.NATS_CLIENT_ID = 'nodebb_sample'
 process.env.NATS_Q_GROUP = 'nodebb_sample'
 
 const { messagingHost, SubscriptionOptions } = require('../index')
-const messageBus = require('@totalsoft/message-bus')
 
 const topics = ['nodebb.sample.topic.1', 'nodebb.sample.topic.2']
 
@@ -20,24 +19,24 @@ msgHost
   .then(() => {
     //host.stop()
     setTimeout(() => {
-      messageBus.transport.connect().then((connection) => {
-        connection.close()
-      })
+      msgHost._messageBus.transport.disconnect()
     }, 5000)
   })
 
-  process.on("uncaughtException", function (error, origin) {
-    msgHost.stopImmediate();
-    throw new Error(`Exception occurred while processing the request: ${error}\n` + `Exception origin: ${origin}`);
-  });
-  
-  process.on('SIGINT', () => {
-    msgHost.stopImmediate();
-  });
-  process.on('SIGTERM', () => {
-    msgHost.stopImmediate();
-  });
+process.on('uncaughtException', function (error, origin) {
+  msgHost.stopImmediate()
+  throw new Error(
+    `Exception occurred while processing the request: ${error}\n` +
+      `Exception origin: ${origin}`,
+  )
+})
 
+process.on('SIGINT', () => {
+  msgHost.stopImmediate()
+})
+process.on('SIGTERM', () => {
+  msgHost.stopImmediate()
+})
 
 // setTimeout(()=>{
 //   throw new Error("some error")

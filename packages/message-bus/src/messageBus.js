@@ -1,13 +1,17 @@
 // Copyright (c) TotalSoft.
 // This source code is licensed under the MIT license.
 
-const { nats } = require('./transport')
+const transport = require('./transport')
 const topicRegistry = require('./topicRegistry')
 const serDes = require('./serDes')
 const { SubscriptionOptions } = require('./subscriptionOptions')
 const { envelope } = require('./envelope')
 
-let currentTransport = nats
+const { Messaging__Transport } = process.env
+
+let currentTransport =
+  transport[Messaging__Transport] || transport.nats
+  
 function useTransport(t) {
   currentTransport = t
 }
@@ -22,9 +26,9 @@ function _messageBus(transport) {
     const fullTopicName = topicRegistry.getFullTopicName(topic)
 
     const envelopedMsg = envelope(msg, ctx, envelopeCustomizer)
-    const data = serDes.serialize(envelopedMsg)
+    //const data = serDes.serialize(envelopedMsg)
     try {
-      await transport.publish(fullTopicName, data)
+      await transport.publish(fullTopicName, envelopedMsg, serDes)
       console.info(`✉   Message published to topic ${fullTopicName}`)
       return envelopedMsg
     } catch (err) {
@@ -40,16 +44,16 @@ function _messageBus(transport) {
     opts = SubscriptionOptions.STREAM_PROCESSOR,
   ) {
     const fullTopicName = topicRegistry.getFullTopicName(topic)
-    function h(msg) {
+    function h(e) {
       console.info(`✉   Received a message from ${fullTopicName}`)
-      const data = serDes.deSerialize(msg.getData())
-      return handler(data)
+      return handler(e)
     }
 
     const subscription = await transport.subscribe(
       fullTopicName,
       h,
       opts,
+      serDes,
     )
     console.info(`📌  Subscribed to ${fullTopicName}`)
 

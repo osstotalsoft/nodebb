@@ -126,9 +126,7 @@ describe('MessageBus tests', () => {
 
     //assert
     expect(natsTransportMock.publish).toHaveBeenCalled()
-    const publishedMsg = serDes.deSerialize(
-      natsTransportMock.publish.mock.calls[0][1],
-    )
+    const publishedMsg = natsTransportMock.publish.mock.calls[0][1]
     expect(envelope.getCorrelationId(publishedMsg)).toBe(
       ctx.correlationId,
     )

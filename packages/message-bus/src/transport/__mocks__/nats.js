@@ -14,17 +14,14 @@ const mock = {
   subscription,
 }
 
-const yieldsMsg = (msg) => (_subject, handler) => {
+const yieldsMsg = (msg) => (_subject, handler, _options, serDes) => {
   setTimeout(() => {
-    handler({
-      getSequence: jest.fn(() => ''),
-      getData: jest.fn(() => msg),
-    })
+    handler(serDes.deSerialize(msg))
   }, 100)
   return Promise.resolve(subscription)
 }
 
-const yieldsNoMsg = () => (_subject, _handler) => {
+const yieldsNoMsg = () => (_subject, _handler, _options, _serDes) => {
   return Promise.resolve(subscription)
 }
 
