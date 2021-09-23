@@ -45,7 +45,7 @@ function _messageBus(transport) {
   ) {
     const fullTopicName = topicRegistry.getFullTopicName(topic)
     function h(e) {
-      console.info(`✉   Received a message from ${fullTopicName}`)
+      setImmediate(_=>{console.info(`✉   Received a message from ${fullTopicName}`)})
       return handler(e)
     }
 

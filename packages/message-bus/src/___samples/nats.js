@@ -1,9 +1,11 @@
 // Copyright (c) TotalSoft.
 // This source code is licensed under the MIT license.
 
-process.env.Messaging__Transport = 'rusi'
-process.env.RUSI_GRPC_ENDPOINT = 'localhost:50003'
-process.env.RUSI_PUB_SUB_NAME = 'natsstreaming-pubsub'
+process.env.Messaging__Transport = 'nats'
+process.env.Messaging__Source="nodebb-nats-sample"
+process.env.NATS_CLIENT_ID="your_nats_client_id"
+process.env.NATS_Q_GROUP="your_q_group"
+process.env.NATS_DURABLE_NAME="durable"
 const { SubscriptionOptions } = require('..')
 const { messageBus } = require('../index')
 
@@ -16,6 +18,6 @@ msgBus
     console.info,
     SubscriptionOptions.STREAM_PROCESSOR,
   )
-  .then((sub) => sub.unsubscribe())
-  //.then((_sub) => msgBus.publish(topic, { hello: 'world!' }))
+  //.then((sub) => sub.unsubscribe())
+  .then((_sub) => msgBus.publish(topic, { hello: 'world!' }))
   .catch((err) => console.error(err))

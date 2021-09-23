@@ -6,7 +6,7 @@
 
 process.env.Messaging__Transport = 'rusi'
 process.env.RUSI_GRPC_ENDPOINT = 'localhost:50003'
-process.env.RUSI_PUB_SUB_NAME="natsstreaming-pubsub"
+process.env.RUSI_PUB_SUB_NAME = 'natsstreaming-pubsub'
 
 const { messagingHost, SubscriptionOptions } = require('../index')
 
@@ -20,12 +20,18 @@ msgHost
     await next()
   })
   .start()
-  // .then(() => {
-  //   //host.stop()
-  //   setTimeout(() => {
-  //     msgHost._messageBus.transport.disconnect()
-  //   }, 5000)
-  // })
+  .then(() => {
+    //host.stop()
+    setInterval(() => {
+      msgHost._messageBus.publish(topics[0], { hello: 'world' })
+    }, 1000)
+  })
+// .then(() => {
+//   //host.stop()
+//   setTimeout(() => {
+//     msgHost._messageBus.transport.disconnect()
+//   }, 5000)
+// })
 
 process.on('uncaughtException', function (error, origin) {
   msgHost.stopImmediate()

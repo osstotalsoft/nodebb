@@ -6,7 +6,7 @@ const grpc = require('grpc')
 const protoLoader = require('@grpc/proto-loader')
 const Promise = require('bluebird')
 const { SubscriptionOptions } = require('../../subscriptionOptions')
-const EventEmitter = require('events');
+const EventEmitter = require('events')
 
 const {
   RUSI_GRPC_ENDPOINT,
@@ -50,6 +50,19 @@ async function _connect() {
       RUSI_GRPC_ENDPOINT,
       grpc.credentials.createInsecure(),
     )
+    await new Promise((resolve, reject) => {
+      const timeoutMilliseconds = 10000
+      const deadline = Date.now() + timeoutMilliseconds
+      c.waitForReady(deadline, (err) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve()
+        }
+      })
+    })
+    // const _waitForReady = Promise.promisify(c.waitForReady, { context: c })
+    // await _waitForReady(Infinity)
     client = c
     return client
   } finally {
@@ -57,7 +70,7 @@ async function _connect() {
   }
 }
 
-async function connect(){
+async function connect() {
   const c = await _connect()
   return wrapClient(c)
 }
@@ -267,28 +280,92 @@ function fromUTF8Array(data) {
 }
 
 function wrapSubscription(call) {
-  return {
-    on: call.on,
-    unsubscribe: function unsubscribe() {
-      return new Promise((resolve, reject) => {
-        // call.on('unsubscribed', () => {
-        //   resolve()
-        // })
-        // call.on('error', (err) => {
-        //   reject(err)
-        // })
-        call.cancel()
-        resolve()
+  const sub = new EventEmitter()
+  sub.on('removeListener', (event, listener) => {
+    call.removeListener(event, listener)
+  })
+  sub.on('newListener', (event, listener) => {
+    call.on(event, listener)
+  })
+
+  sub.unsubscribe = function unsubscribe() {
+    return new Promise((resolve, reject) => {
+      call.on('error', (err) => {
+        if (err.code === 1 /*Cancelled*/) {
+          resolve()
+        } else {
+          reject(err)
+        }
       })
-    },
-    _grpcClientStream: call,
+      call.cancel()
+    })
   }
+  sub._grpcClientStream = call
+
+  return sub
 }
 
-function wrapClient(client){
-  const connection = new EventEmitter();
-  connection._rusiClient = client;
+function wrapClient(client) {
+  const connection = new EventEmitter()
+
+  const channel = client.getChannel()
+
+  var checkState = function (err) {
+    if (err) {
+      connection.emit('error', err)
+      return
+    }
+    var new_state
+    try {
+      new_state = channel.getConnectivityState(true)
+    } catch (e) {
+      connection.emit(
+        'error',
+        new Error('The channel has been closed'),
+      )
+      return
+    }
+    if (new_state === grpc.connectivityState.READY) {
+      connection.emit('reconnect')
+    } else if (new_state === grpc.connectivityState.CONNECTING) {
+      connection.emit('connecting')
+    } else if (new_state === grpc.connectivityState.FATAL_FAILURE) {
+      connection.emit(
+        'error',
+        new Error('Failed to connect to server'),
+      )
+    }
+
+    try {
+      channel.watchConnectivityState(new_state, Infinity, checkState)
+    } catch (e) {
+      connection.emit(
+        'error',
+        new Error('The channel has been closed'),
+      )
+    }
+  }
+
+  setImmediate(checkState)
+
+  // connection.on('removeListener', (event, listener) => {
+  //   client.removeListener(event, listener)
+  // })
+  // connection.on('newListener', (event, listener) => {
+  //   client.on(event, listener)
+  // })
+  connection._rusiClient = client
   return connection
+}
+
+function patchEmitter(emitter) {
+  var oldEmit = emitter.emit
+
+  emitter.emit = function () {
+    var emitArgs = arguments
+    console.log(emitArgs)
+    oldEmit.apply(emitter, arguments)
+  }
 }
 
 module.exports = {

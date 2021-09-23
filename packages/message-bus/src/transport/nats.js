@@ -6,6 +6,7 @@ const { v4 } = require('uuid')
 const Promise = require('bluebird')
 const { SubscriptionOptions } = require('../subscriptionOptions')
 const { Mutex } = require('async-mutex')
+const EventEmitter = require('events')
 
 const {
   NATS_CLIENT_ID,
@@ -136,7 +137,7 @@ async function subscribe(subject, handler, opts, serDes) {
     : client.subscribe(subject, natsOpts)
 
   subscription.on('message', (msg) => {
-    const envelope = serDes.deserialize(msg.getData())
+    const envelope = serDes.deSerialize(msg.getData())
     handler(envelope)
     if (natsOpts.manualAcks) {
       msg.ack()
@@ -174,22 +175,26 @@ async function subscribe(subject, handler, opts, serDes) {
 }
 
 function wrapSubscription(natsSubscription) {
-  return {
-    on: natsSubscription.on,
-    unsubscribe: function unsubscribe() {
-      
-      return new Promise((resolve, reject) => {
-        natsSubscription.on('unsubscribed', () => {
-          resolve()
-        })
-        natsSubscription.on('error', (err) => {
-          reject(err)
-        })
-        natsSubscription.unsubscribe()
+  const sub = new EventEmitter()
+  sub.on('removeListener', (event, listener) => {
+    natsSubscription.removeListener(event, listener)
+  })
+  sub.on('newListener', (event, listener) => {
+    natsSubscription.on(event, listener)
+  })
+  sub.unsubscribe = function unsubscribe() {
+    return new Promise((resolve, reject) => {
+      natsSubscription.on('unsubscribed', () => {
+        resolve()
       })
-    },
-    _natsSubscription: natsSubscription,
+      natsSubscription.on('error', (err) => {
+        reject(err)
+      })
+      natsSubscription.close()
+    })
   }
+  sub._natsSubscription = natsSubscription
+  return sub
 }
 
 module.exports = {

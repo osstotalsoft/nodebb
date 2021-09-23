@@ -8,7 +8,7 @@ import { EventEmitter } from 'events'
 
 export type Connection = EventEmitter
 
-export interface Subscription {
+export interface Subscription extends EventEmitter {
   unsubscribe: () => Promise<void>
 }
 
