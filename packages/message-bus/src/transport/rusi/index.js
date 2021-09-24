@@ -307,53 +307,36 @@ function wrapSubscription(call) {
 
 function wrapClient(client) {
   const connection = new EventEmitter()
-
   const channel = client.getChannel()
 
-  var checkState = function (err) {
-    if (err) {
-      connection.emit('error', err)
-      return
-    }
-    var new_state
-    try {
-      new_state = channel.getConnectivityState(true)
-    } catch (e) {
-      connection.emit(
-        'error',
-        new Error('The channel has been closed'),
-      )
-      return
-    }
-    if (new_state === grpc.connectivityState.READY) {
-      connection.emit('reconnect')
-    } else if (new_state === grpc.connectivityState.CONNECTING) {
-      connection.emit('connecting')
-    } else if (new_state === grpc.connectivityState.FATAL_FAILURE) {
-      connection.emit(
-        'error',
-        new Error('Failed to connect to server'),
-      )
-    }
-
-    try {
-      channel.watchConnectivityState(new_state, Infinity, checkState)
-    } catch (e) {
-      connection.emit(
-        'error',
-        new Error('The channel has been closed'),
-      )
-    }
+  try {
+    channel.watchConnectivityState(
+      grpc.connectivityState.READY,
+      Infinity,
+      () => {
+        let currentState
+        try {
+          currentState = channel.getConnectivityState(true)
+        } catch (e) {
+          connection.emit(
+            'error',
+            new Error('The channel has been closed'),
+          )
+          return
+        }
+        connection.emit(
+          'error',
+          new Error(
+            `The channel's connectivity state is ${currentState}`,
+          ),
+        )
+      },
+    )
+  } catch (e) {
+    connection.emit('error', new Error('The channel has been closed'))
+    return
   }
-
-  setImmediate(checkState)
-
-  // connection.on('removeListener', (event, listener) => {
-  //   client.removeListener(event, listener)
-  // })
-  // connection.on('newListener', (event, listener) => {
-  //   client.on(event, listener)
-  // })
+  
   connection._rusiClient = client
   return connection
 }

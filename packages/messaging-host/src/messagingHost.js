@@ -27,7 +27,6 @@ function messagingHost() {
     connection = await msgBus.transport.connect()
     connection.on('error', onConnectionErrorOrClosed)
     connection.on('close', onConnectionErrorOrClosed)
-    connection.on('reconnect', onConnectionReconnected)
 
     const subs = Object.entries(subscriptionOptions).map(
       ([topic, opts]) =>
@@ -73,23 +72,6 @@ function messagingHost() {
 
   function onConnectionErrorOrClosed() {
     throw new Error('Messaging Host transport connection failure!')
-  }
-
-  function onConnectionReconnected() {
-    // subscriptions.forEach((subscription) => {
-    //   subscription.unsubscribe()
-    // })
-    const subs = Object.entries(subscriptionOptions).map(
-      ([topic, opts]) =>
-        msgBus.subscribe(
-          topic,
-          (msg) => run(pipeline, _contextFactory(topic, msg)),
-          opts,
-        ),
-    )
-    Promise.all(subs).then((s) => {
-      subscriptions = s
-    })
   }
 
   function _contextFactory(topic, msg) {
