@@ -61,8 +61,7 @@ async function _connect() {
         }
       })
     })
-    // const _waitForReady = Promise.promisify(c.waitForReady, { context: c })
-    // await _waitForReady(Infinity)
+
     client = c
     return client
   } finally {
@@ -109,7 +108,6 @@ async function publish(subject, envelope, serDes) {
 async function subscribe(subject, handler, opts, serDes) {
   const c = await _connect()
   const rusiSubOptions = {
-    //durable:
   }
   switch (opts) {
     case SubscriptionOptions.STREAM_PROCESSOR:
@@ -159,7 +157,7 @@ async function subscribe(subject, handler, opts, serDes) {
     options: rusiSubOptions,
   }
 
-  const call = c.subscribe(subscribeRequest)
+  const call = c.Subscribe(subscribeRequest)
   call.on('data', function (msg) {
     const payload = serDes.deSerializePayload(fromUTF8Array(msg.data))
     const headers = msg.metadata
@@ -176,29 +174,7 @@ async function subscribe(subject, handler, opts, serDes) {
       `Rusi subscription error for subject ${subject}: ${e}`,
     )
   })
-  call.on('status', function (status) {
-    // process status
-    console.info(
-      `Rusi subscription received status ${status.details} for subject ${subject}.`,
-    )
-  })
 
-  // call.on('metadata', function (metadata) {
-  //   // process status
-  //   console.info(
-  //     `Rusi subscription received metadata ${metadata} for subject ${subject}.`,
-  //   )
-  // })
-
-  // const result = await new Promise((resolve, reject) => {
-  //   call.on('readable', () => {
-  //     resolve(wrapSubscription(call))
-  //   })
-  //   resolve(wrapSubscription(call))
-  //   call.on('error', (err) => {
-  //     reject(err)
-  //   })
-  // })
   const result = wrapSubscription(call)
   return result
 }
@@ -336,19 +312,13 @@ function wrapClient(client) {
     connection.emit('error', new Error('The channel has been closed'))
     return
   }
-  
+
+  connection.on('error', (err) => {
+    console.error(`Rusi connection error: ${err}`)
+  })
+
   connection._rusiClient = client
   return connection
-}
-
-function patchEmitter(emitter) {
-  var oldEmit = emitter.emit
-
-  emitter.emit = function () {
-    var emitArgs = arguments
-    console.log(emitArgs)
-    oldEmit.apply(emitter, arguments)
-  }
 }
 
 module.exports = {

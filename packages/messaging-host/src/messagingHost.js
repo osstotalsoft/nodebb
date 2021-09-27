@@ -4,12 +4,22 @@
 const { messageBus } = require('@totalsoft/message-bus')
 const { empty, concat, run } = require('./pipeline')
 
+const { Messaging__Host_ConnectionErrorStrategy } = process.env
+
 function messagingHost() {
   let subscriptionOptions = {}
   let pipeline = empty
+  let msgBus = messageBus()
   let subscriptions = null
   let connection = null
-  let msgBus = messageBus()
+  let msgHost = null
+  let connectionErrorHandler = function connectionErrorHandler(err) {
+    const h =
+      connectionErrorStrategy[
+        Messaging__Host_ConnectionErrorStrategy
+      ] || connectionErrorStrategy.throw
+    h(err, connection, msgHost)
+  }
 
   function use(middleware) {
     pipeline = concat(middleware, pipeline)
@@ -23,10 +33,17 @@ function messagingHost() {
     return this
   }
 
+  function onConnectionError(handler) {
+    connectionErrorHandler = function connectionErrorHandler(err) {
+      handler(err, connection, msgHost)
+    }
+    return this
+  }
+
   async function start() {
     connection = await msgBus.transport.connect()
-    connection.on('error', onConnectionErrorOrClosed)
-    connection.on('close', onConnectionErrorOrClosed)
+    connection.on('error', connectionErrorHandler)
+    connection.on('close', connectionErrorHandler)
 
     const subs = Object.entries(subscriptionOptions).map(
       ([topic, opts]) =>
@@ -44,8 +61,8 @@ function messagingHost() {
   async function stop() {
     console.info('Messaging Host is shutting down...')
     if (connection) {
-      connection.removeListener('error', onConnectionErrorOrClosed)
-      connection.removeListener('close', onConnectionErrorOrClosed)
+      connection.removeListener('error', connectionErrorHandler)
+      connection.removeListener('close', connectionErrorHandler)
     }
 
     await Promise.allSettled(
@@ -57,8 +74,8 @@ function messagingHost() {
   function stopImmediate() {
     console.info('Messaging Host is shutting down...')
     if (connection) {
-      connection.removeListener('error', onConnectionErrorOrClosed)
-      connection.removeListener('close', onConnectionErrorOrClosed)
+      connection.removeListener('error', connectionErrorHandler)
+      connection.removeListener('close', connectionErrorHandler)
     }
     try {
       subscriptions.forEach((subscription) => {
@@ -70,23 +87,31 @@ function messagingHost() {
     }
   }
 
-  function onConnectionErrorOrClosed() {
-    throw new Error('Messaging Host transport connection failure!')
-  }
-
   function _contextFactory(topic, msg) {
     return { received: { topic, msg } }
   }
 
-  return {
+  msgHost = {
     use,
     subscribe,
+    onConnectionError,
     start,
     stop,
     stopImmediate,
     _contextFactory,
     _messageBus: msgBus,
   }
+
+  return msgHost
 }
 
-module.exports = { messagingHost }
+const connectionErrorStrategy = {
+  throw: function throwOnConnectionError() {
+    throw new Error('Messaging Host transport connection failure!')
+  },
+  retry: function retryOnConnectionError(_err, _cn, msgHost) {
+    msgHost.stop().then((_) => msgHost.start())
+  },
+}
+
+module.exports = { messagingHost, connectionErrorStrategy }

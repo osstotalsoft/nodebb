@@ -26,6 +26,10 @@ msgHost
       msgHost._messageBus.publish(topics[0], { hello: 'world' })
     }, 1000)
   })
+  .catch((err) => {
+    //console.log(err)
+    throw err
+  })
 // .then(() => {
 //   //host.stop()
 //   setTimeout(() => {

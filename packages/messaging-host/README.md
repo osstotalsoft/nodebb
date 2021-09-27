@@ -149,6 +149,19 @@ messagingHost()
     .use(dispatcher(msgHandlers))
 ```
 
+## connection error handler
+The messaging host provides two builtin connection error strategies:
+ - throw: throws an error
+ - retry: tries to restart the messaging host
+
+You can set one or the other by invoking `onConnectionError` on a messaging host instance, or globally, by setting the env variable `Messaging__Host_ConnectionErrorStrategy`. By default it uses the `connectionErrorStrategy.throw` handler.
+
+```javascript
+const { messagingHost, connectionErrorStrategy } = require("@totalsoft/messaging-host")
+messagingHost()
+    .onConnectionError(connectionErrorStrategy.retry)
+```
+
 
 
 

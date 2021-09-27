@@ -1,7 +1,11 @@
 // Copyright (c) TotalSoft.
 // This source code is licensed under the MIT license.
 
-import { Envelope, SubscriptionOptions } from '@totalsoft/message-bus'
+import {
+  Envelope,
+  SubscriptionOptions,
+  transport,
+} from '@totalsoft/message-bus'
 
 export type MessagingHostMiddleware = (
   ctx: MessagingHostContext,
@@ -22,6 +26,9 @@ export type MessagingHost = {
     topics: string[],
     opts: SubscriptionOptions,
   ) => MessagingHost
+  onConnectionError: (
+    handler: ConnectionErrorStrategy,
+  ) => MessagingHost
   start: () => Promise<MessagingHost>
   stop: () => Promise<void>
   stopImmediate: () => void
@@ -35,3 +42,14 @@ export type MessagingHostContext = {
 }
 
 export function messagingHost(): MessagingHost
+
+export type ConnectionErrorStrategy = (
+  err: Error,
+  cn: transport.Connection,
+  msgHost: MessagingHost,
+) => void
+export interface ConnectionErrorStrategies {
+  throw: ConnectionErrorStrategy
+  retry: ConnectionErrorStrategy
+}
+export const connectionErrorStrategy: ConnectionErrorStrategies
