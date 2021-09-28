@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@totalsoft/message-bus": "^1.0.0",
+    "polly-js": "^1.8.2",
     "ramda": "^0.27.0",
     "uuid": "^8.3.0"
   }

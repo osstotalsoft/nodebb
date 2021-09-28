@@ -1,3 +1,8 @@
+<!--
+ Copyright (c) TotalSoft.
+ This source code is licensed under the MIT license.
+-->
+
 # messaging-host
 Infrastructure for event-driven stream processing microservices
 
@@ -52,6 +57,9 @@ index.js:42
 index.js:42
 🚀  Messaging host ready
 ```
+
+By default the start fn is retried 20 times before throwing an error.
+You can set the number of retries by setting the `Messaging__Host__StartRetryCount` environment variable
 
 ## subscriptions
 The subscribe function takes an array of topics and an optional subscription options parameter. You can call subscribe multiple times with different subscription options.
@@ -151,10 +159,10 @@ messagingHost()
 
 ## connection error handler
 The messaging host provides two builtin connection error strategies:
+ - retry: tries to restart the messaging host for 20 times before throwing an error. You can set the number of retries by setting the `Messaging__Host__StartRetryCount` environment variable
  - throw: throws an error
- - retry: tries to restart the messaging host
 
-You can set one or the other by invoking `onConnectionError` on a messaging host instance, or globally, by setting the env variable `Messaging__Host_ConnectionErrorStrategy`. By default it uses the `connectionErrorStrategy.throw` handler.
+You can set one or the other by invoking `onConnectionError` on a messaging host instance, or globally, by setting the env variable `Messaging__Host__ConnectionErrorStrategy`. By default it uses the `connectionErrorStrategy.retry` handler.
 
 ```javascript
 const { messagingHost, connectionErrorStrategy } = require("@totalsoft/messaging-host")

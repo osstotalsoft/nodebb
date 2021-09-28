@@ -3,8 +3,12 @@
 
 const { messageBus } = require('@totalsoft/message-bus')
 const { empty, concat, run } = require('./pipeline')
+const polly = require('polly-js')
 
-const { Messaging__Host_ConnectionErrorStrategy } = process.env
+const {
+  Messaging__Host__ConnectionErrorStrategy,
+  Messaging__Host__StartRetryCount,
+} = process.env
 
 function messagingHost() {
   let subscriptionOptions = {}
@@ -16,8 +20,8 @@ function messagingHost() {
   let connectionErrorHandler = function connectionErrorHandler(err) {
     const h =
       connectionErrorStrategy[
-        Messaging__Host_ConnectionErrorStrategy
-      ] || connectionErrorStrategy.throw
+        Messaging__Host__ConnectionErrorStrategy
+      ] || connectionErrorStrategy.retry
     h(err, connection, msgHost)
   }
 
@@ -40,7 +44,9 @@ function messagingHost() {
     return this
   }
 
-  async function start() {
+  async function _start({ count }) {
+    const action = count == 0 ? 'starting' : `re-starting(${count})`
+    console.info(`Messaging Host is ${action}...`)
     connection = await msgBus.transport.connect()
     connection.on('error', connectionErrorHandler)
     connection.on('close', connectionErrorHandler)
@@ -56,6 +62,13 @@ function messagingHost() {
     subscriptions = await Promise.all(subs)
     console.info(`🚀  Messaging host ready`)
     return this
+  }
+
+  async function start() {
+    await polly()
+      .logger(console.error)
+      .waitAndRetry(parseInt(Messaging__Host__StartRetryCount, 10),20)
+      .executeForPromise(_start)
   }
 
   async function stop() {
@@ -110,7 +123,17 @@ const connectionErrorStrategy = {
     throw new Error('Messaging Host transport connection failure!')
   },
   retry: function retryOnConnectionError(_err, _cn, msgHost) {
-    msgHost.stop().then((_) => msgHost.start())
+    msgHost
+      .stop()
+      .then(msgHost.start)
+      .catch((err) => {
+        console.error(err)
+        setImmediate(() => {
+          throw new Error(
+            'Messaging Host transport connection failure!',
+          )
+        })
+      })
   },
 }
 

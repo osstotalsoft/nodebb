@@ -5,6 +5,7 @@
 // process.env.NATS_Q_GROUP = 'nodebb_sample'
 
 process.env.Messaging__Transport = 'rusi'
+process.env.Messaging__Host_ConnectionErrorStrategy = 'retry'
 process.env.RUSI_GRPC_ENDPOINT = 'localhost:50003'
 process.env.RUSI_PUB_SUB_NAME = 'natsstreaming-pubsub'
 
@@ -20,18 +21,22 @@ msgHost
     await next()
   })
   .start()
+  .catch((err) => {
+    console.error(err)
+    setImmediate(() => {
+      throw err
+    })
+  })
   .then(() => {
     //host.stop()
     setInterval(() => {
-      msgHost._messageBus.publish(topics[0], { hello: 'world' })
-    }, 1000)
-  })
-  .catch((err) => {
-    //console.log(err)
-    throw err
+      msgHost._messageBus
+        .publish(topics[0], { hello: 'world' })
+        .catch(console.error)
+    }, 5000)
   })
 // .then(() => {
-//   //host.stop()
+//   msgHost.stop()
 //   setTimeout(() => {
 //     msgHost._messageBus.transport.disconnect()
 //   }, 5000)

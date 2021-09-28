@@ -51,7 +51,7 @@ async function _connect() {
       grpc.credentials.createInsecure(),
     )
     await new Promise((resolve, reject) => {
-      const timeoutMilliseconds = 10000
+      const timeoutMilliseconds = 1000
       const deadline = Date.now() + timeoutMilliseconds
       c.waitForReady(deadline, (err) => {
         if (err) {
@@ -266,14 +266,15 @@ function wrapSubscription(call) {
 
   sub.unsubscribe = function unsubscribe() {
     return new Promise((resolve, reject) => {
-      call.on('error', (err) => {
-        if (err.code === 1 /*Cancelled*/) {
-          resolve()
-        } else {
-          reject(err)
-        }
-      })
+      // call.on('error', (err) => {
+      //   if (err.code === 1 /*Cancelled*/) {
+      //     resolve()
+      //   } else {
+      //     reject(err)
+      //   }
+      // })
       call.cancel()
+      resolve()
     })
   }
   sub._grpcClientStream = call
