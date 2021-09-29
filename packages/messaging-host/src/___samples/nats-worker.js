@@ -1,6 +1,7 @@
 // Copyright (c) TotalSoft.
 // This source code is licensed under the MIT license.
-
+process.env.NATS_URL="nats://127.0.0.1:4223"
+process.env.NATS_CLUSTER="test-cluster"
 process.env.NATS_CLIENT_ID = 'nodebb_sample'
 process.env.NATS_Q_GROUP = 'nodebb_sample'
 
@@ -16,10 +17,18 @@ msgHost
     await next()
   })
   .start()
+  .catch((err) => {
+    console.error(err)
+    setImmediate(() => {
+      throw err
+    })
+  })
   .then(() => {
     //host.stop()
-    setTimeout(() => {
-      msgHost._messageBus.transport.disconnect()
+    setInterval(() => {
+      msgHost._messageBus
+        .publish(topics[0], { hello: 'world' })
+        .catch(console.error)
     }, 5000)
   })
 
