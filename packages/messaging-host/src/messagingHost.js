@@ -125,6 +125,7 @@ const connectionErrorStrategy = {
   retry: function retryOnConnectionError(_err, _cn, msgHost) {
     msgHost
       .stop()
+      .catch(console.error)
       .then(msgHost.start)
       .catch((err) => {
         console.error(err)

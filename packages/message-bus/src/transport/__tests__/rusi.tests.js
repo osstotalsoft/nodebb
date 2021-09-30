@@ -86,4 +86,24 @@ describe('rusi tests', () => {
     expect(grpcMock.__rusiClientMock.waitForReady).toHaveBeenCalled()
     expect(grpcMock.__rusiClientMock.Subscribe).toHaveBeenCalled()
   })
+
+  test('unsubscribe', async () => {
+    //arrange
+    //const grpcMock = require('grpc')
+    const rusiTransport = require('../rusi')
+
+    const subject = 'subject'
+    const handler = jest.fn()
+
+    //act
+    const sub = await rusiTransport.subscribe(
+      subject,
+      handler,
+      SubscriptionOptions.PUB_SUB,
+    )
+    await sub.unsubscribe()
+
+    //assert
+    expect(sub._call.cancel).toHaveBeenCalled()
+  })
 })

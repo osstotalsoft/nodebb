@@ -7,6 +7,7 @@ const Promise = require('bluebird')
 const { SubscriptionOptions } = require('../subscriptionOptions')
 const { Mutex } = require('async-mutex')
 const EventEmitter = require('events')
+const { timeout } = require('../timeout')
 
 const {
   NATS_CLIENT_ID,
@@ -183,7 +184,7 @@ function wrapSubscription(natsSubscription) {
     natsSubscription.on(event, listener)
   })
   sub.unsubscribe = function unsubscribe() {
-    return new Promise((resolve, reject) => {
+    return timeout(new Promise((resolve, reject) => {
       natsSubscription.on('unsubscribed', () => {
         resolve()
       })
@@ -191,7 +192,7 @@ function wrapSubscription(natsSubscription) {
         reject(err)
       })
       natsSubscription.close()
-    })
+    }), 5000, new Error('Nats subscription unsubscribe timed out'))
   }
   sub._natsSubscription = natsSubscription
   return sub

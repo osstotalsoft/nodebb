@@ -14,13 +14,9 @@ const rusiClientMock = {
   Publish: jest.fn((req, cb) => {
     setTimeout(cb, 10)
   }),
-  Subscribe: jest.fn((req) => {
+  Subscribe: jest.fn((_req) => {
     const sub = new EventEmitter()
-    sub.unsubscribe = function unsubscribe() {
-      return new Promise((resolve, reject) => {
-        setTimeout(resolve, 10)
-      })
-    }
+    sub.cancel = jest.fn()
     return sub
   }),
 }

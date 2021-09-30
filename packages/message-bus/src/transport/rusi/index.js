@@ -107,8 +107,7 @@ async function publish(subject, envelope, serDes) {
 
 async function subscribe(subject, handler, opts, serDes) {
   const c = await _connect()
-  const rusiSubOptions = {
-  }
+  const rusiSubOptions = {}
   switch (opts) {
     case SubscriptionOptions.STREAM_PROCESSOR:
       rusiSubOptions.qGroup = { value: true }
@@ -265,19 +264,10 @@ function wrapSubscription(call) {
   })
 
   sub.unsubscribe = function unsubscribe() {
-    return new Promise((resolve, reject) => {
-      // call.on('error', (err) => {
-      //   if (err.code === 1 /*Cancelled*/) {
-      //     resolve()
-      //   } else {
-      //     reject(err)
-      //   }
-      // })
-      call.cancel()
-      resolve()
-    })
+    call.cancel()
+    return Promise.resolve()
   }
-  sub._grpcClientStream = call
+  sub._call = call
 
   return sub
 }
