@@ -1,3 +1,8 @@
+<!--
+ Copyright (c) TotalSoft.
+ This source code is licensed under the MIT license.
+-->
+
 # messaging-host
 Infrastructure for event-driven stream processing microservices
 
@@ -42,7 +47,7 @@ messagingHost()
     ])
     .use(exceptionHandling())
     .use(correlation())
-    .use(mdispatcher(msgHandlers))
+    .use(dispatcher(msgHandlers))
     .start()
 ```
 ```terminal
@@ -52,6 +57,9 @@ index.js:42
 index.js:42
 🚀  Messaging host ready
 ```
+
+By default the start fn is retried 20 times before throwing an error.
+You can set the number of retries by setting the `Messaging__Host__StartRetryCount` environment variable
 
 ## subscriptions
 The subscribe function takes an array of topics and an optional subscription options parameter. You can call subscribe multiple times with different subscription options.
@@ -93,7 +101,7 @@ export interface Headers {
   [propName: string]: any;
 }
 ```
-You hook the middlewares with the *use* func:
+You hook the middleware with the *use* func:
 ```javascript
 const { messagingHost } = require("@totalsoft/messaging-host")
 
@@ -104,10 +112,10 @@ messagingHost()
     .start()
 ```
 
-You can mix built-in provided middlewares with custom ones.
+You can mix built-in provided middleware with custom ones.
 
-## built-in middlewares
-The messaging host provides some built-in middlewares
+## built-in middleware
+The messaging host provides some built-in middleware
 ```javascript
 messagingHost()
     .use(exceptionHandling())
@@ -126,7 +134,7 @@ Typically configured very early in the pipeline, it swallows exceptions and logs
 messagingHost()
     .use(correlation())
 ```
-Typically configured early in the pipeline, it has the role to fetch the correlation id from the received message or create a new one if the incomming message does not have one. It will persist the correlation id in the context obj.
+Typically configured early in the pipeline, it has the role to fetch the correlation id from the received message or create a new one if the incoming message does not have one. It will persist the correlation id in the context obj.
 
 ### built-in dispatcher middleware
 ```javascript
@@ -147,6 +155,19 @@ const msgHandlers = dispatcher.mergeHandlers([
 ])
 messagingHost()
     .use(dispatcher(msgHandlers))
+```
+
+## connection error handler
+The messaging host provides two builtin connection error strategies:
+ - retry: tries to restart the messaging host for 20 times before throwing an error. You can set the number of retries by setting the `Messaging__Host__StartRetryCount` environment variable
+ - throw: throws an error
+
+You can set one or the other by invoking `onConnectionError` on a messaging host instance, or globally, by setting the env variable `Messaging__Host__ConnectionErrorStrategy`. By default it uses the `connectionErrorStrategy.retry` handler.
+
+```javascript
+const { messagingHost, connectionErrorStrategy } = require("@totalsoft/messaging-host")
+messagingHost()
+    .onConnectionError(connectionErrorStrategy.retry)
 ```
 
 

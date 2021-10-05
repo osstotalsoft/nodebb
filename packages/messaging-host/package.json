@@ -11,7 +11,8 @@
   "scripts": {
     "test": "jest --watchAll",
     "tslint": "tslint -p tsconfig.json \"/**/*.ts\"",
-    "sample": "node src/___samples/worker.js"
+    "nats-sample": "node src/___samples/nats-worker.js",
+    "rusi-sample": "node src/___samples/rusi-worker.js"
   },
   "author": "TotalSoft",
   "homepage": "https://github.com/osstotalsoft/nodebb/tree/master/packages/messaging-host",
@@ -26,6 +27,7 @@
   },
   "dependencies": {
     "@totalsoft/message-bus": "^1.0.0",
+    "polly-js": "^1.8.2",
     "ramda": "^0.27.0",
     "uuid": "^8.3.0"
   }

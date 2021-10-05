@@ -10,7 +10,8 @@
   },
   "scripts": {
     "test": "jest --watchAll",
-    "tslint": "tslint -p tsconfig.json \"/**/*.ts\""
+    "tslint": "tslint -p tsconfig.json \"/**/*.ts\"",
+    "rusi-sample": "node src/___samples/rusi.js"
   },
   "author": "TotalSoft",
   "homepage": "https://github.com/osstotalsoft/nodebb/tree/master/packages/message-bus",
@@ -24,11 +25,16 @@
     "access": "public"
   },
   "dependencies": {
+    "@grpc/proto-loader": "^0.6.5",
     "async-mutex": "^0.3.1",
     "bluebird": "3.7.2",
     "dotenv": "8.2.0",
+    "grpc": "^1.24.11",
     "humps": "^2.0.1",
     "node-nats-streaming": "0.3.2",
     "uuid": "^8.3.0"
+  },
+  "devDependencies": {
+    "dotenv": "^10.0.0"
   }
 }

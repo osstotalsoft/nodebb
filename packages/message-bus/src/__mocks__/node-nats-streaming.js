@@ -1,7 +1,7 @@
 // Copyright (c) TotalSoft.
 // This source code is licensed under the MIT license.
 
-const mock = jest.genMockFromModule('node-nats-streaming')
+const mock = jest.createMockFromModule('node-nats-streaming')
 const subscriptionOptions = {
   setStartAt: jest.fn(),
   setDurableName: jest.fn(),

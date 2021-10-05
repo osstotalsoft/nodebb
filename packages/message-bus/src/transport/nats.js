@@ -6,6 +6,8 @@ const { v4 } = require('uuid')
 const Promise = require('bluebird')
 const { SubscriptionOptions } = require('../subscriptionOptions')
 const { Mutex } = require('async-mutex')
+const EventEmitter = require('events')
+const { timeout } = require('../timeout')
 
 const {
   NATS_CLIENT_ID,
@@ -83,16 +85,17 @@ async function disconnect() {
   }
 }
 
-async function publish(subject, msg) {
+async function publish(subject, envelope, serDes) {
   const client = await connect()
   const _publish = Promise.promisify(client.publish, {
     context: client,
   })
+  const msg = serDes.serialize(envelope)
   const result = await _publish(subject, msg)
   return result
 }
 
-async function subscribe(subject, handler, opts) {
+async function subscribe(subject, handler, opts, serDes) {
   const client = await connect()
   const natsOpts = client.subscriptionOptions()
   let useQGroup = false
@@ -135,7 +138,8 @@ async function subscribe(subject, handler, opts) {
     : client.subscribe(subject, natsOpts)
 
   subscription.on('message', (msg) => {
-    handler(msg)
+    const envelope = serDes.deSerialize(msg.getData())
+    handler(envelope)
     if (natsOpts.manualAcks) {
       msg.ack()
     }
@@ -172,22 +176,26 @@ async function subscribe(subject, handler, opts) {
 }
 
 function wrapSubscription(natsSubscription) {
-  return {
-    on: natsSubscription.on,
-    unsubscribe: function unsubscribe() {
-      
-      return new Promise((resolve, reject) => {
-        natsSubscription.on('unsubscribed', () => {
-          resolve()
-        })
-        natsSubscription.on('error', (err) => {
-          reject(err)
-        })
-        natsSubscription.unsubscribe()
+  const sub = new EventEmitter()
+  sub.on('removeListener', (event, listener) => {
+    natsSubscription.removeListener(event, listener)
+  })
+  sub.on('newListener', (event, listener) => {
+    natsSubscription.on(event, listener)
+  })
+  sub.unsubscribe = function unsubscribe() {
+    return timeout(new Promise((resolve, reject) => {
+      natsSubscription.on('unsubscribed', () => {
+        resolve()
       })
-    },
-    _natsSubscription: natsSubscription,
+      natsSubscription.on('error', (err) => {
+        reject(err)
+      })
+      natsSubscription.close()
+    }), 5000, new Error('Nats subscription unsubscribe timed out'))
   }
+  sub._natsSubscription = natsSubscription
+  return sub
 }
 
 module.exports = {

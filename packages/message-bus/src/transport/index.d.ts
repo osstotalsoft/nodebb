@@ -2,19 +2,31 @@
 // This source code is licensed under the MIT license.
 
 import { SubscriptionOptions } from '../subscriptionOptions'
+import { Envelope } from '../envelope'
+import { SerDes } from '../serDes'
+import { EventEmitter } from 'events'
 
-export interface Connection {}
-export type MessageHandler = (msg: string) => void
+export type Connection = EventEmitter
 
-export interface Subscription {
+export interface Subscription extends EventEmitter {
   unsubscribe: () => Promise<void>
 }
 
-export function connect(): Promise<Connection>
-export function disconnect(): Promise<void>
-export function publish(subject: string, msg: any): Promise<void>
-export function subscribe(
-  subject: string,
-  handler: MessageHandler,
-  opts: SubscriptionOptions,
-): Promise<Subscription>
+export interface Transport {
+  connect(): Promise<Connection>
+  disconnect(): Promise<void>
+  publish(
+    subject: string,
+    envelope: Envelope<any>,
+    serDes: SerDes,
+  ): Promise<void>
+  subscribe(
+    subject: string,
+    handler: (envelope: Envelope<any>) => void,
+    opts: SubscriptionOptions,
+    serDes: SerDes,
+  ): Promise<Subscription>
+}
+
+export const nats: Transport
+export const rusi: Transport

@@ -1,10 +1,10 @@
 // Copyright (c) TotalSoft.
 // This source code is licensed under the MIT license.
 
-const { connect, disconnect, publish, subscribe } = require("./nats")
+const nats = require("./nats")
+const rusi = require("./rusi")
+
 module.exports = {
-    connect,
-    disconnect,
-    publish,
-    subscribe
+    nats,
+    rusi
 }

@@ -13,24 +13,40 @@ The message bus is a high level api for messaging communication that abstracts a
  - Topic Registry
  - Message envelope
 
+## transport
+By default the message bus uses the Nats streaming transport. When working with other transports, you need to globally set the transport, before using the message bus api.
+```javascript
+const { messageBus, useTransport, transport } = require('@totalsoft/message-bus');
+
+useTransport(transport.rusi) //or transport.nats or whatever transport
+const msgBus = messageBus() //now every message bus instance points to that transport
+await msgBus.publish('some_subject', {});
+```
+
+Built-in transport options:
+- [Nats streaming](https://github.com/nats-io/nats-streaming-server)
+- [rusi](https://github.com/osstotalsoft/rusi)
+
 ## publish
 ```javascript
-const messageBus = require('@totalsoft/message-bus');
+const { messageBus } = require('@totalsoft/message-bus');
 
 const userUpdatedEvent = { userId: 5, userName:'rpopovici' }
 const correlationId = 'some-correlation-id'
 const tenantId = 'some-tenant-id'
+const msgBus = messageBus()
 
-await messageBus.publish('USER_UPDATED', userUpdatedEvent, {correlationId, tenantId});
+await msgBus.publish('USER_UPDATED', userUpdatedEvent, {correlationId, tenantId});
 ```
 
 ## subscribe
 ```javascript
-const messageBus = require('@totalsoft/message-bus');
+const { messageBus, SubscriptionOptions } = require('@totalsoft/message-bus');
 
 const handler = console.log
+const msgBus = messageBus()
 
-const subscription = await messageBus.subscribe('USER_UPDATED', handler, messageBus.SubscriptionOptions.STREAM_PROCESSOR)
+const subscription = await msgBus.subscribe('USER_UPDATED', handler, SubscriptionOptions.STREAM_PROCESSOR)
 ```
 The last optional parameter *subscription options*  is a high level configuration of the subscription type. See below.
 
@@ -43,14 +59,15 @@ When subscribing to a stream you ca opt in one of the following:
 
 ## request / response over messaging
 ```javascript
-const messageBus = require('@totalsoft/message-bus');
+const { messageBus } = require('@totalsoft/message-bus');
 
 const correlationId = 'some-correlation-id'
 const tenantId = 'some-tenant-id'
 
 const updateUserCommand = { userId: 5, userName:'rpopovici' }
+const msgBus = messageBus()
 
-const [topic, event] = await messageBus.sendCommandAndReceiveEvent(
+const [topic, event] = await msgBus.sendCommandAndReceiveEvent(
     'UPDATE_USER', updateUserCommand,
     ['USER_UPDATED', 'UPDATE_USER_FAILED'],
     {correlationId, tenantId}

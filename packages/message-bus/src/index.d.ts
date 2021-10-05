@@ -2,9 +2,8 @@
 // This source code is licensed under the MIT license.
 
 export {
-  publish,
-  subscribe,
-  sendCommandAndReceiveEvent,
+  messageBus,
+  useTransport
 } from './messageBus'
 
 import { SubscriptionOptions } from './subscriptionOptions'
