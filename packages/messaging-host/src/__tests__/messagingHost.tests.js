@@ -20,7 +20,10 @@ describe('MessagingHost tests', () => {
     //Arrange
     console.info = jest.fn()
     const msgHost = messagingHost()
-    msgHost._messageBus.__mockSubscriptionOnce({ headers: {}, payload: {} })
+    msgHost._messageBus.__mockSubscriptionOnce({
+      headers: {},
+      payload: {},
+    })
     msgHost._messageBus.__mockSubscriptionOnce(/*no events*/)
 
     const firstMiddleware = jest.fn(async (_ctx, next) => {
@@ -56,5 +59,74 @@ describe('MessagingHost tests', () => {
     expect(secondMiddleware.mock.calls[0][0].received).toHaveProperty(
       'msg',
     )
+  })
+
+  test('start retries', async () => {
+    //arrange
+    const middleware = jest.fn(async (_ctx, next) => {
+      await next()
+    })
+    const msgHost = messagingHost()
+      //.onConnectionError(connErrHandler)
+      .use(middleware)
+      .subscribe(['topic'])
+
+    msgHost._messageBus
+      .__mockConnectionErrorOnce()
+      .__mockSuccessfulConnectionOnce()
+
+    //act
+    setImmediate(jest.runAllTimers)
+    await msgHost.start()
+
+    //assert
+    expect(
+      msgHost._messageBus.transport.connect,
+    ).toHaveBeenCalledTimes(2)
+  })
+
+  test('connection error handler', async () => {
+    //arrange
+    const middleware = jest.fn(async (_ctx, next) => {
+      await next()
+    })
+    const connectionErrorHandler = jest.fn()
+    const msgHost = messagingHost()
+      .onConnectionError(connectionErrorHandler)
+      .use(middleware)
+      .subscribe(['topic'])
+
+    //act
+    await msgHost.start()
+    msgHost._messageBus.__emitConnectionError()
+
+    //assert
+    expect(connectionErrorHandler).toHaveBeenCalled()
+  })
+
+  test('connection error retries', async () => {
+    //arrange
+    const middleware = jest.fn(async (_ctx, next) => {
+      await next()
+    })
+    const msgHost = messagingHost()
+      .use(middleware)
+      .subscribe(['topic'])
+
+    msgHost._messageBus
+      .__mockSuccessfulConnectionOnce()
+      .__mockConnectionErrorOnce()
+    //.__mockSuccessfulConnectionOnce()
+
+    //act
+    await msgHost.start()
+
+    msgHost._messageBus.__emitConnectionError()
+    await new Promise((resolve) => {
+      msgHost.on('starting', resolve)
+    })
+
+    //assert
+    expect(msgHost._messageBus.transport.connect).toHaveBeenCalledTimes(2)
   })
 })

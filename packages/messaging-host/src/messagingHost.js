@@ -4,6 +4,7 @@
 const { messageBus } = require('@totalsoft/message-bus')
 const { empty, concat, run } = require('./pipeline')
 const polly = require('polly-js')
+const EventEmitter = require('events')
 
 const {
   Messaging__Host__ConnectionErrorStrategy,
@@ -47,6 +48,8 @@ function messagingHost() {
   async function _start({ count }) {
     const action = count == 0 ? 'starting' : `re-starting(${count})`
     console.info(`Messaging Host is ${action}...`)
+    msgHost.emit('starting', { count })
+
     connection = await msgBus.transport.connect()
     connection.on('error', connectionErrorHandler)
     connection.on('close', connectionErrorHandler)
@@ -61,18 +64,23 @@ function messagingHost() {
     )
     subscriptions = await Promise.all(subs)
     console.info(`🚀  Messaging host ready`)
+    msgHost.emit('started', { count })
     return this
   }
 
   async function start() {
     await polly()
       .logger(console.error)
-      .waitAndRetry(parseInt(Messaging__Host__StartRetryCount, 10) || 20)
+      .waitAndRetry(
+        parseInt(Messaging__Host__StartRetryCount, 10) || 20,
+      )
       .executeForPromise(_start)
   }
 
   async function stop() {
     console.info('Messaging Host is shutting down...')
+    msgHost.emit('stopping')
+
     if (connection) {
       connection.removeListener('error', connectionErrorHandler)
       connection.removeListener('close', connectionErrorHandler)
@@ -82,6 +90,7 @@ function messagingHost() {
       subscriptions.map((subscription) => subscription.unsubscribe()),
     )
     await msgBus.transport.disconnect()
+    msgHost.emit('stopped')
   }
 
   function stopImmediate() {
@@ -104,7 +113,7 @@ function messagingHost() {
     return { received: { topic, msg } }
   }
 
-  msgHost = {
+  msgHost = Object.assign(new EventEmitter(), {
     use,
     subscribe,
     onConnectionError,
@@ -113,7 +122,7 @@ function messagingHost() {
     stopImmediate,
     _contextFactory,
     _messageBus: msgBus,
-  }
+  })
 
   return msgHost
 }
