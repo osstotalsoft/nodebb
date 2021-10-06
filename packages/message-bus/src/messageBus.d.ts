@@ -24,7 +24,7 @@ export interface MessageBus {
    */
   subscribe(
     topic: string,
-    handler: (msg: any) => void,
+    handler: (msg: any) => Promise<void>,
     opts?: SubscriptionOptions,
   ): Promise<Subscription>
 
