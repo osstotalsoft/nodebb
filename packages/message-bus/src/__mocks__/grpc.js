@@ -17,6 +17,8 @@ const rusiClientMock = {
   Subscribe: jest.fn((_req) => {
     const sub = new EventEmitter()
     sub.cancel = jest.fn()
+    sub.end = jest.fn()
+    sub.write = jest.fn()
     return sub
   }),
 }

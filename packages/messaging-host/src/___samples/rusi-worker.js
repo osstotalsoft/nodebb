@@ -11,11 +11,11 @@ process.env.RUSI_PUB_SUB_NAME = 'natsstreaming-pubsub'
 
 const { messagingHost, SubscriptionOptions } = require('../index')
 
-const topics = ['nodebb.sample.topic.1', 'nodebb.sample.topic.2']
+const topics = ['nodebb.rusi.sample.topic.1', 'nodebb.rusi.sample.topic.2']
 
 const msgHost = messagingHost()
 msgHost
-  .subscribe(topics, SubscriptionOptions.PUB_SUB)
+  .subscribe(topics, SubscriptionOptions.STREAM_PROCESSOR)
   .use(async (ctx, next) => {
     console.log(`received msg from topic ${ctx.received.topic}`)
     await next()

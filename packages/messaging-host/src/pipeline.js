@@ -13,7 +13,7 @@ function concat(middleware, pipeline) {
 }
 
 function run(pipeline, ctx) {
-    pipeline(ctx, emptyFn)
+    return pipeline(ctx, emptyFn)
 }
 
 module.exports = {

@@ -133,17 +133,19 @@ async function subscribe(subject, handler, opts, serDes) {
     default:
   }
 
+  const stanMsgHandler = async msg =>{
+    const envelope = serDes.deSerialize(msg.getData())
+    await handler(envelope)
+    if(natsOpts.manualAcks){
+      msg.ack()
+    }
+  }
+  
   const subscription = useQGroup
     ? client.subscribe(subject, NATS_Q_GROUP, natsOpts)
     : client.subscribe(subject, natsOpts)
 
-  subscription.on('message', (msg) => {
-    const envelope = serDes.deSerialize(msg.getData())
-    handler(envelope)
-    if (natsOpts.manualAcks) {
-      msg.ack()
-    }
-  })
+  subscription.on('message', stanMsgHandler)
   subscription.on('error', (err) => {
     console.error(
       `Nats subscription error for subject ${subject}: ${err}`,
@@ -184,15 +186,19 @@ function wrapSubscription(natsSubscription) {
     natsSubscription.on(event, listener)
   })
   sub.unsubscribe = function unsubscribe() {
-    return timeout(new Promise((resolve, reject) => {
-      natsSubscription.on('unsubscribed', () => {
-        resolve()
-      })
-      natsSubscription.on('error', (err) => {
-        reject(err)
-      })
-      natsSubscription.close()
-    }), 5000, new Error('Nats subscription unsubscribe timed out'))
+    return timeout(
+      new Promise((resolve, reject) => {
+        natsSubscription.on('unsubscribed', () => {
+          resolve()
+        })
+        natsSubscription.on('error', (err) => {
+          reject(err)
+        })
+        natsSubscription.close()
+      }),
+      5000,
+      new Error('Nats subscription unsubscribe timed out'),
+    )
   }
   sub._natsSubscription = natsSubscription
   return sub

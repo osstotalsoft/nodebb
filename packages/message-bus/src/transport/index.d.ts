@@ -22,7 +22,7 @@ export interface Transport {
   ): Promise<void>
   subscribe(
     subject: string,
-    handler: (envelope: Envelope<any>) => void,
+    handler: (envelope: Envelope<any>) => Promise<void>,
     opts: SubscriptionOptions,
     serDes: SerDes,
   ): Promise<Subscription>
