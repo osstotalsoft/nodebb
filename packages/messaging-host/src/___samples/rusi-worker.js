@@ -6,7 +6,7 @@
 
 process.env.Messaging__Transport = 'rusi'
 process.env.Messaging__Host_ConnectionErrorStrategy = 'retry'
-process.env.RUSI_GRPC_ENDPOINT = 'localhost:50003'
+process.env.RUSI_GRPC_PORT = '50003'
 process.env.RUSI_PUB_SUB_NAME = 'natsstreaming-pubsub'
 
 const { messagingHost, SubscriptionOptions } = require('../index')

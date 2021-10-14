@@ -2,7 +2,7 @@
 // This source code is licensed under the MIT license.
 
 process.env.Messaging__Transport = 'rusi'
-process.env.RUSI_GRPC_ENDPOINT = 'localhost:50003'
+process.env.RUSI_GRPC_PORT = '50003'
 process.env.RUSI_PUB_SUB_NAME = 'natsstreaming-pubsub'
 const { SubscriptionOptions } = require('..')
 const { messageBus } = require('../index')

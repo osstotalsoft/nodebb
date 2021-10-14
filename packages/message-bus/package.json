@@ -25,11 +25,10 @@
     "access": "public"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.4.1",
     "@grpc/proto-loader": "^0.6.5",
     "async-mutex": "^0.3.1",
     "bluebird": "3.7.2",
-    "dotenv": "8.2.0",
-    "grpc": "^1.24.11",
     "humps": "^2.0.1",
     "node-nats-streaming": "0.3.2",
     "uuid": "^8.3.0"

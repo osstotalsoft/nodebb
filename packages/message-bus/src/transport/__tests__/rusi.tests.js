@@ -17,7 +17,7 @@ describe('rusi tests', () => {
 
   test('connect', async () => {
     //arrange
-    const grpcMock = require('grpc')
+    const grpcMock = require('@grpc/grpc-js')
     const rusiTransport = require('../rusi')
 
     //act
@@ -30,7 +30,7 @@ describe('rusi tests', () => {
 
   test('concurrent connect calls', async () => {
     //arrange
-    const grpcMock = require('grpc')
+    const grpcMock = require('@grpc/grpc-js')
     const rusiTransport = require('../rusi')
 
     //act
@@ -54,7 +54,7 @@ describe('rusi tests', () => {
 
   test('publish', async () => {
     //arrange
-    const grpcMock = require('grpc')
+    const grpcMock = require('@grpc/grpc-js')
     const rusiTransport = require('../rusi')
     const subject = 'subject'
     const envelope = { payload: {}, headers: {} }
@@ -69,7 +69,7 @@ describe('rusi tests', () => {
 
   test('subscribe', async () => {
     //arrange
-    const grpcMock = require('grpc')
+    const grpcMock = require('@grpc/grpc-js')
     const rusiTransport = require('../rusi')
 
     const subject = 'subject'
@@ -89,7 +89,7 @@ describe('rusi tests', () => {
 
   test('unsubscribe', async () => {
     //arrange
-    //const grpcMock = require('grpc')
+    //const grpcMock = require('@grpc/grpc-js')
     const rusiTransport = require('../rusi')
 
     const subject = 'subject'
