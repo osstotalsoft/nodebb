@@ -23,7 +23,7 @@ const rusiClientMock = {
   }),
 }
 
-const mock = jest.createMockFromModule('grpc')
+const mock = jest.createMockFromModule('@grpc/grpc-js')
 mock.loadPackageDefinition = jest.fn(() => {
   const result = {
     rusi: {

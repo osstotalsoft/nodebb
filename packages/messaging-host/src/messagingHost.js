@@ -72,7 +72,7 @@ function messagingHost() {
     await polly()
       .logger(console.error)
       .waitAndRetry(
-        parseInt(Messaging__Host__StartRetryCount, 10) || 20,
+        parseInt(Messaging__Host__StartRetryCount, 10) || 10,
       )
       .executeForPromise(_start)
   }

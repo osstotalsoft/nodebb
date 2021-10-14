@@ -2,14 +2,14 @@
 // This source code is licensed under the MIT license.
 
 const { Mutex } = require('async-mutex')
-const grpc = require('grpc')
+const grpc = require('@grpc/grpc-js')
 const protoLoader = require('@grpc/proto-loader')
 const Promise = require('bluebird')
 const { SubscriptionOptions } = require('../../subscriptionOptions')
 const EventEmitter = require('events')
 
 const {
-  RUSI_GRPC_ENDPOINT,
+  RUSI_GRPC_PORT,
   RUSI_STREAM_PROCESSOR_MaxConcurrentMessages,
   RUSI_STREAM_PROCESSOR_AckWaitTime,
   RUSI_PUB_SUB_MaxConcurrentMessages,
@@ -47,7 +47,7 @@ async function _connect() {
         .v1
 
     let c = new rusi_proto.Rusi(
-      RUSI_GRPC_ENDPOINT,
+      'localhost:' + (RUSI_GRPC_PORT || 50003),
       grpc.credentials.createInsecure(),
     )
     await new Promise((resolve, reject) => {
@@ -163,7 +163,7 @@ async function subscribe(subject, handler, opts, serDes) {
     const headers = msg.metadata
     const envelope = { payload, headers }
     await handler(envelope)
-    const ackRequest = { message_id: msg.id/* , error: null*/ }
+    const ackRequest = { message_id: msg.id /* , error: null*/ }
     call.write({ ack_request: ackRequest })
   })
   call.on('end', function () {

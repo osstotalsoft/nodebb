@@ -58,7 +58,7 @@ index.js:42
 🚀  Messaging host ready
 ```
 
-By default the start fn is retried 20 times before throwing an error.
+By default the start fn is retried 10 times before throwing an error.
 You can set the number of retries by setting the `Messaging__Host__StartRetryCount` environment variable
 
 ## subscriptions
@@ -159,7 +159,7 @@ messagingHost()
 
 ## connection error handler
 The messaging host provides two builtin connection error strategies:
- - retry: tries to restart the messaging host for 20 times before throwing an error. You can set the number of retries by setting the `Messaging__Host__StartRetryCount` environment variable
+ - retry: tries to restart the messaging host for 10 times before throwing an error. You can set the number of retries by setting the `Messaging__Host__StartRetryCount` environment variable
  - throw: throws an error
 
 You can set one or the other by invoking `onConnectionError` on a messaging host instance, or globally, by setting the env variable `Messaging__Host__ConnectionErrorStrategy`. By default it uses the `connectionErrorStrategy.retry` handler.
