@@ -26,9 +26,9 @@ lerna run tslint
 
 ## Publish
 ```javascript
-lerna publish patch
-lerna publish minor
-lerna publish major
+yarn lerna publish patch
+yarn lerna publish minor
+yarn lerna publish major
 ``` 
 
 ## License
