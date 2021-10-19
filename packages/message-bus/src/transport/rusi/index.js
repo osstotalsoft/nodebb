@@ -9,6 +9,7 @@ const { SubscriptionOptions } = require('../../subscriptionOptions')
 const EventEmitter = require('events')
 
 const {
+  RUSI_GRPC_ENDPOINT,
   RUSI_GRPC_PORT,
   RUSI_STREAM_PROCESSOR_MaxConcurrentMessages,
   RUSI_STREAM_PROCESSOR_AckWaitTime,
@@ -47,7 +48,7 @@ async function _connect() {
         .v1
 
     let c = new rusi_proto.Rusi(
-      'localhost:' + (RUSI_GRPC_PORT || 50003),
+      RUSI_GRPC_ENDPOINT || 'localhost:' + (RUSI_GRPC_PORT || 50003),
       grpc.credentials.createInsecure(),
     )
     await new Promise((resolve, reject) => {
