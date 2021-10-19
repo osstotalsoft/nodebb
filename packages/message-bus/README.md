@@ -78,6 +78,8 @@ const [topic, event] = await msgBus.sendCommandAndReceiveEvent(
 Messaging__TopicPrefix="deprecated_please_use_Messaging__Env"
 Messaging__Env="messaging_env"
 Messaging__Source="your_service_name"
+Messaging__Transport="nats_or_rusi"
+
 NATS_URL="your_nats_url"
 NATS_CLUSTER="your_nats_cluster"
 NATS_CLIENT_ID="your_nats_client_id"
@@ -89,5 +91,15 @@ NATS_PUB_SUB_MaxInflight="100"
 NATS_PUB_SUB_AckWait="5000"
 NATS_RPC_MaxInflight="1"
 NATS_RPC_AckWait="5000"
+
+RUSI_GRPC_ENDPOINT="localhost:50003"
+RUSI_GRPC_PORT="50003"
+RUSI_PUB_SUB_NAME="natsstreaming-pubsub"
+RUSI_STREAM_PROCESSOR_MaxConcurrentMessages="1"
+RUSI_STREAM_PROCESSOR_AckWaitTime="5000"
+RUSI_PUB_SUB_MaxConcurrentMessages="100"
+RUSI_PUB_SUB_AckWaitTime="5000"
+RUSI_RPC_MaxConcurrentMessages="1"
+RUSI_RPC_AckWaitTime="5000"
 
 
