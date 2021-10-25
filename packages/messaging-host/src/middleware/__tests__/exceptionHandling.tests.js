@@ -1,9 +1,6 @@
 // Copyright (c) TotalSoft.
 // This source code is licensed under the MIT license.
 
-jest.resetModules()
-process.env.Messaging__TopicPrefix = ''
-jest.mock('../../../../message-bus/src/transport/nats')
 const { deadLetterQueue } = require('../deadLetterQueue')
 
 const dlqMock = { push: jest.fn(async () => { }) }
