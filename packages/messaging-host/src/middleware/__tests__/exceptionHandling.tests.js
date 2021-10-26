@@ -25,10 +25,8 @@ describe('exceptionHandling tests:', () => {
       throw new Error(`Error!`)
     }
 
-    let t = exceptionHandling()(ctx, next)
-
     //act & assert
-    await expect(t).resolves.toBe(
+    await expect(exceptionHandling()(ctx, next)).resolves.toBe(
       undefined,
     )
   })
