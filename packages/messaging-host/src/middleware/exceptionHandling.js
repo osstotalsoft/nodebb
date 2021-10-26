@@ -17,9 +17,9 @@ const deadLetterQueue = () => {
       originalTopic: ctx.received.topic,
       originalSystem: envelope.getSource(ctx.received.msg),
       correlationId: envelope.getCorrelationId(ctx.received.msg),
-      messageType: "",//message type header
-      publishTime: new Date(), // publish time hader???
-      messageId: "", //the message id header??
+      messageType: "",
+      publishTime: new Date(),
+      messageId: "",
     }
 
     await msgBus.publish("_error", payload, ctx)
