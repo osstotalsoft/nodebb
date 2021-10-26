@@ -1,13 +1,13 @@
 // Copyright (c) TotalSoft.
 // This source code is licensed under the MIT license.
 
-const { deadLetterQueue } = require('../deadLetterQueue')
-
-const dlqMock = { push: jest.fn(async () => { }) }
-jest.mock('../deadLetterQueue')
-deadLetterQueue.mockImplementation(() => dlqMock)
-
 const { exceptionHandling } = require('../exceptionHandling')
+const { messageBus } = require('@totalsoft/message-bus')
+
+const busMock = { publish: jest.fn(async () => { }) }
+jest.mock('@totalsoft/message-bus')
+messageBus.mockImplementation(() => busMock)
+
 const { messagingHost } = require('../../messagingHost')
 
 global.console = {
@@ -25,8 +25,10 @@ describe('exceptionHandling tests:', () => {
       throw new Error(`Error!`)
     }
 
+    let t = exceptionHandling()(ctx, next)
+
     //act & assert
-    await expect(exceptionHandling()(ctx, next)).resolves.toBe(
+    await expect(t).resolves.toBe(
       undefined,
     )
   })
@@ -44,6 +46,6 @@ describe('exceptionHandling tests:', () => {
     exceptionHandling()(ctx, next)
 
     //assert
-    expect(dlqMock.push).toHaveBeenCalledTimes(1)
+    expect(busMock.publish).toHaveBeenCalledTimes(1)
   })
 })
