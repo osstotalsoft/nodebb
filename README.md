@@ -21,7 +21,7 @@ yarn test
 
 ## Ts lint
 ```javascript
-lerna run tslint
+yarn lerna run tslint
 ```
 
 ## Publish

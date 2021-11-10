@@ -3,7 +3,8 @@
 
 export {
   messageBus,
-  useTransport
+  useTransport,
+  useSerDes
 } from './messageBus'
 
 import { SubscriptionOptions } from './subscriptionOptions'

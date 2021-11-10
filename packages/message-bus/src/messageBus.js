@@ -3,7 +3,7 @@
 
 const transport = require('./transport')
 const topicRegistry = require('./topicRegistry')
-const serDes = require('./serDes')
+const defaultSerDes = require('./serDes')
 const { SubscriptionOptions } = require('./subscriptionOptions')
 const { envelope } = require('./envelope')
 
@@ -11,12 +11,18 @@ const { Messaging__Transport } = process.env
 
 let currentTransport =
   transport[Messaging__Transport] || transport.nats
-  
+
 function useTransport(t) {
   currentTransport = t
 }
 
-function _messageBus(transport) {
+let currentSerDes = defaultSerDes
+
+function useSerDes(s) {
+  currentSerDes = s
+}
+
+function _messageBus(transport, serDes) {
   async function publish(
     topic,
     msg,
@@ -26,7 +32,6 @@ function _messageBus(transport) {
     const fullTopicName = topicRegistry.getFullTopicName(topic)
 
     const envelopedMsg = envelope(msg, ctx, envelopeCustomizer)
-    //const data = serDes.serialize(envelopedMsg)
     try {
       await transport.publish(fullTopicName, envelopedMsg, serDes)
       console.info(`✉   Message published to topic ${fullTopicName}`)
@@ -45,7 +50,9 @@ function _messageBus(transport) {
   ) {
     const fullTopicName = topicRegistry.getFullTopicName(topic)
     function h(e) {
-      setImmediate(_=>{console.info(`✉   Received a message from ${fullTopicName}`)})
+      setImmediate((_) => {
+        console.info(`✉   Received a message from ${fullTopicName}`)
+      })
       return handler(e)
     }
 
@@ -115,14 +122,16 @@ function _messageBus(transport) {
     subscribe,
     sendCommandAndReceiveEvent,
     transport,
+    serDes
   }
 }
 
 function messageBus() {
-  return _messageBus(currentTransport)
+  return _messageBus(currentTransport, currentSerDes)
 }
 
 module.exports = {
   messageBus,
   useTransport,
+  useSerDes
 }

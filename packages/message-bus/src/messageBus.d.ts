@@ -4,6 +4,7 @@
 import { Context, Envelope, EnvelopeCustomizer } from './envelope'
 import { SubscriptionOptions } from './subscriptionOptions'
 import { Subscription, Transport } from './transport'
+import { SerDes } from './serDes'
 
 export interface MessageBus {
   /**
@@ -44,3 +45,4 @@ export interface MessageBus {
 
 export function messageBus(): MessageBus
 export function useTransport(t: Transport): void
+export function useSerDes(s: SerDes): void
