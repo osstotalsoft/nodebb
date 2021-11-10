@@ -27,6 +27,17 @@ Built-in transport options:
 - [Nats streaming](https://github.com/nats-io/nats-streaming-server)
 - [rusi](https://github.com/osstotalsoft/rusi)
 
+## serDes
+When publishing and receiving messages the message bus needs to serialize / deserialize messages. By default it uses a built-in Json serializer. Should you need to hook in your custom serializer, you can globally set your custom serializer, before using the message bus api.
+
+```javascript
+const { messageBus, useSerDes, serDes } = require('@totalsoft/message-bus');
+
+useSerDes(customize(serDes))
+const msgBus = messageBus() //now every message bus instance points to that serDes
+await msgBus.publish('some_subject', {});
+```
+
 ## publish
 ```javascript
 const { messageBus } = require('@totalsoft/message-bus');

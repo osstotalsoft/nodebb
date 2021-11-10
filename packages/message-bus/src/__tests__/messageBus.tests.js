@@ -13,7 +13,6 @@ global.console = {
 
 const { messageBus, useTransport } = require('../messageBus')
 const natsTransportMock = require('../transport/nats')
-const serDes = require('../serDes')
 const { envelope } = require('../envelope')
 
 describe('MessageBus tests', () => {
@@ -149,5 +148,23 @@ describe('MessageBus tests', () => {
 
     //assert
     expect(msgBus.transport).toBe(transport1)
+  })
+
+  test('useSerDes', async () => {
+    //arrange
+    const serDes1 = {
+    }
+
+    const serDes2 = {
+    }
+
+    //act
+    useTransport(serDes1)
+    const msgBus = messageBus()
+    useTransport(serDes2)
+
+
+    //assert
+    expect(msgBus.transport).toBe(serDes1)
   })
 })
