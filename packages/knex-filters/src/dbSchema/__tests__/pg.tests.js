@@ -1,7 +1,7 @@
 // Copyright (c) TotalSoft.
 // This source code is licensed under the MIT license.
 
-const Knex = require('knex')
+const { knex } = require('knex')
 const mockDb = require('mock-knex')
 const { buildTableHasColumnPredicate } = require('../pg')
 const R = require('ramda')
@@ -9,10 +9,10 @@ const R = require('ramda')
 describe('postgreSql dbSchema tests', () => {
   test('buildTableHasColumnPredicate', async () => {
     //arrange
-    var knex = Knex({
+    var knexInstance = knex({
       client: 'pg',
     })
-    mockDb.mock(knex)
+    mockDb.mock(knexInstance)
     var tracker = mockDb.getTracker()
     tracker.install()
     tracker.on('query', function checkResult(query) {
@@ -42,7 +42,7 @@ describe('postgreSql dbSchema tests', () => {
     //act
     const predicate = await buildTableHasColumnPredicate(
       'TenantId',
-      knex,
+      knexInstance,
     )
 
     //assert
@@ -68,16 +68,16 @@ describe('postgreSql dbSchema tests', () => {
     const getFirstCallQuery = R.path([...callsPath, 0, 0, 'sql'])
     const getSecondCallQuery = R.path([...callsPath, 1, 0, 'sql'])
 
-    var knex = Knex({
+    var knexInstance = knex({
       client: 'pg',
     })
-    mockDb.mock(knex)
+    mockDb.mock(knexInstance)
     var tracker = mockDb.getTracker()
     tracker.install()
     tracker.on('query', spyListener)
 
     //act
-    await buildTableHasColumnPredicate('TenantId', knex)
+    await buildTableHasColumnPredicate('TenantId', knexInstance)
 
     //assert
     expect(spyListener.mock.calls).toHaveLength(2)
