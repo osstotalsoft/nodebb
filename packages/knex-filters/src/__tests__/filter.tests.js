@@ -1,7 +1,7 @@
 // Copyright (c) TotalSoft.
 // This source code is licensed under the MIT license.
 
-const Knex = require('knex')
+const { knex } = require('knex')
 const mockDb = require('mock-knex')
 const MSSQLMockKnex = require('../__mocks/MSSQLMockKnex')
 
@@ -10,10 +10,10 @@ const { registerFilter } = require('../filter')
 describe('filter tests', () => {
   test('select from single table', async () => {
     //arrange
-    var knex = Knex({
+    var knexInstance = knex({
       client: 'mssql',
     })
-    mockDb.mock(knex)
+    mockDb.mock(knexInstance)
 
     const hooks = {
       onSelect: jest.fn(),
@@ -21,7 +21,7 @@ describe('filter tests', () => {
     const filter = jest.fn(() => {
       return hooks
     })
-    registerFilter(filter, knex)
+    registerFilter(filter, knexInstance)
 
     const advancedHooks = {
       onSelect: {
@@ -31,14 +31,14 @@ describe('filter tests', () => {
     const advancedFilter = jest.fn(() => {
       return advancedHooks
     })
-    registerFilter(advancedFilter, knex)
+    registerFilter(advancedFilter, knexInstance)
 
     //act
-    await knex.select('column1').from('table1 as tbl1')
-    await knex.select('column2').from('table2')
-    await knex.select('column3').from('[table3] as tbl3')
-    await knex.select('column4').from('[dbo].[table4]')
-    await knex.select('column5').from('dbo.table5 as tbl5')
+    await knexInstance.select('column1').from('table1 as tbl1')
+    await knexInstance.select('column2').from('table2')
+    await knexInstance.select('column3').from('[table3] as tbl3')
+    await knexInstance.select('column4').from('[dbo].[table4]')
+    await knexInstance.select('column5').from('dbo.table5 as tbl5')
 
     //assert
     expect(filter).toHaveBeenCalledWith('table1')
@@ -124,16 +124,16 @@ describe('filter tests', () => {
 
   test('select with join', async () => {
     //arrange
-    var knex = Knex({
+    var knexInstance = knex({
       client: 'mssql',
     })
-    mockDb.mock(knex)
+    mockDb.mock(knexInstance)
 
     const hooks = {
       onSelect: jest.fn(),
     }
     const filter = jest.fn(() => hooks)
-    registerFilter(filter, knex)
+    registerFilter(filter, knexInstance)
 
     const advancedHooks = {
       onSelect: {
@@ -148,10 +148,10 @@ describe('filter tests', () => {
     const advancedFilter = jest.fn(() => {
       return advancedHooks
     })
-    registerFilter(advancedFilter, knex)
+    registerFilter(advancedFilter, knexInstance)
 
     //act
-    await knex
+    await knexInstance
       .select('tbl1.column1', 'tbl2.column2')
       .from('table1 as tbl1')
       .innerJoin('table2 as tbl2', 'tbl1.column1', 'tbl2.column2')
@@ -269,22 +269,22 @@ describe('filter tests', () => {
 
   test('insert', async () => {
     //arrange
-    var knex = Knex({
+    var knexInstance = knex({
       client: 'mssql',
     })
-    mockDb.mock(knex)
+    mockDb.mock(knexInstance)
 
     const hooks = {
       onInsert: jest.fn(),
     }
     const filter = jest.fn(() => hooks)
-    registerFilter(filter, knex)
+    registerFilter(filter, knexInstance)
 
     //act
     const table1row = { column1: 'column1' }
-    await knex('table1').insert(table1row)
+    await knexInstance('table1').insert(table1row)
     const table2rows = [{ column2: 'value1' }, { column2: 'value2' }]
-    await knex('table2').insert(table2rows)
+    await knexInstance('table2').insert(table2rows)
 
     //assert
     expect(filter).toHaveBeenCalledWith('table1')
@@ -312,23 +312,23 @@ describe('filter tests', () => {
 
   test('update', async () => {
     //arrange
-    var knex = Knex({
+    var knexInstance = knex({
       client: 'mssql',
     })
-    mockDb.mock(knex)
+    mockDb.mock(knexInstance)
 
     const hooks = {
       onUpdate: jest.fn(),
     }
     const filter = jest.fn(() => hooks)
-    registerFilter(filter, knex)
+    registerFilter(filter, knexInstance)
 
     //act
     const table1Updates = { column1: 'value1' }
-    await knex('table1').update(table1Updates)
+    await knexInstance('table1').update(table1Updates)
 
     const table2Updates = { column2: 'value2' }
-    await knex('dbo.table2 as tbl2').update(table2Updates)
+    await knexInstance('dbo.table2 as tbl2').update(table2Updates)
 
     //assert
     expect(filter).toHaveBeenCalledWith('table1')
@@ -350,20 +350,20 @@ describe('filter tests', () => {
 
   test('delete', async () => {
     //arrange
-    var knex = Knex({
+    var knexInstance = knex({
       client: 'mssql',
     })
-    mockDb.mock(knex)
+    mockDb.mock(knexInstance)
 
     const hooks = {
       onDelete: jest.fn(),
     }
     const filter = jest.fn(() => hooks)
-    registerFilter(filter, knex)
+    registerFilter(filter, knexInstance)
 
     //act
-    await knex('table1').del()
-    await knex('dbo.table2 as tbl2').del()
+    await knexInstance('table1').del()
+    await knexInstance('dbo.table2 as tbl2').del()
 
     //assert
     expect(filter).toHaveBeenCalledWith('table1')
@@ -383,10 +383,10 @@ describe('filter tests', () => {
 
   test('transaction', async () => {
     //arrange
-    var knex = Knex({
+    var knexInstance = knex({
       client: 'mssql',
     })
-    MSSQLMockKnex.client.mock(knex)
+    MSSQLMockKnex.client.mock(knexInstance)
 
     const hooks = {
       onSelect: jest.fn(),
@@ -396,13 +396,13 @@ describe('filter tests', () => {
     }
 
     const filter = jest.fn(() => hooks)
-    registerFilter(filter, knex)
+    registerFilter(filter, knexInstance)
 
     const insertedRow = { column1: 'value1' }
     const updates = { column1: 'value2' }
 
     //act
-    await knex.transaction(async (trx) => {
+    await knexInstance.transaction(async (trx) => {
       await trx.select('column1').from('table1 as tbl1')
 
       await trx('table2').insert(insertedRow)
@@ -447,21 +447,21 @@ describe('filter tests', () => {
 
   test('count', async () => {
     //arrange
-    var knex = Knex({
+    var knexInstance = knex({
       client: 'mssql',
     })
-    mockDb.mock(knex)
+    mockDb.mock(knexInstance)
 
     const hooks = {
       onSelect: jest.fn(),
     }
     const filter = jest.fn(() => hooks)
-    registerFilter(filter, knex)
+    registerFilter(filter, knexInstance)
 
     //act
-    await knex('table1').count('column1', { as: 'c1' })
-    await knex('dbo.table2').count('column2')
-    await knex('table3 as tbl3')
+    await knexInstance('table1').count('column1', { as: 'c1' })
+    await knexInstance('dbo.table2').count('column2')
+    await knexInstance('table3 as tbl3')
       .join('table4 as tbl4', 'tbl3.column3', 'tbl4.column4')
       .count()
 
@@ -499,19 +499,19 @@ describe('filter tests', () => {
 
   test('count modify first', async () => {
     //arrange
-    var knex = Knex({
+    var knexInstance = knex({
       client: 'mssql',
     })
-    mockDb.mock(knex)
+    mockDb.mock(knexInstance)
 
     const hooks = {
       onSelect: jest.fn(),
     }
     const filter = jest.fn(() => hooks)
-    registerFilter(filter, knex)
+    registerFilter(filter, knexInstance)
 
     //act
-    await knex
+    await knexInstance
       .count('column1', { as: 'c1' })
       .modify((queryBuilder) => {
         queryBuilder.from('table1')
@@ -530,19 +530,19 @@ describe('filter tests', () => {
 
   test('first', async () => {
     //arrange
-    var knex = Knex({
+    var knexInstance = knex({
       client: 'mssql',
     })
-    mockDb.mock(knex)
+    mockDb.mock(knexInstance)
 
     const hooks = {
       onSelect: jest.fn(),
     }
     const filter = jest.fn(() => hooks)
-    registerFilter(filter, knex)
+    registerFilter(filter, knexInstance)
 
     //act
-    await knex.table('table1').first('id', 'name')
+    await knexInstance.table('table1').first('id', 'name')
 
     //assert
     expect(filter).toHaveBeenCalledWith('table1')
@@ -556,19 +556,19 @@ describe('filter tests', () => {
 
   test('min', async () => {
     //arrange
-    var knex = Knex({
+    var knexInstance = knex({
       client: 'mssql',
     })
-    mockDb.mock(knex)
+    mockDb.mock(knexInstance)
 
     const hooks = {
       onSelect: jest.fn(),
     }
     const filter = jest.fn(() => hooks)
-    registerFilter(filter, knex)
+    registerFilter(filter, knexInstance)
 
     //act
-    await knex('table1').min('id')
+    await knexInstance('table1').min('id')
 
     //assert
     expect(filter).toHaveBeenCalledWith('table1')

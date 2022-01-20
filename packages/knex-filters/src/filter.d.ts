@@ -1,7 +1,7 @@
 // Copyright (c) TotalSoft.
 // This source code is licensed under the MIT license.
 
-import Knex = require('knex');
+import { Knex } from 'knex'
 
 export interface FromClause {
   table: string

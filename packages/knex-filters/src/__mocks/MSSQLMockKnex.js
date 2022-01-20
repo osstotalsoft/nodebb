@@ -8,19 +8,18 @@ const _ = require('lodash')
 const { spec } = require('mock-knex/dist/platforms/knex/0.11')
 const { makeClient } = require('mock-knex/dist/platforms/knex/0.8')
 
-class MockTransaction {
-  async begin() {
-    return this
-  }
-  async commit() {}
-  async request() {}
-  async rollback() {}
-}
-
 const connection = {
   __knexUid: 'mockedConnection',
   timeout: Promise.method(getConnection),
-  transaction: () => new MockTransaction(),
+  beginTransaction: (callback, _y, _z) => {
+    callback()
+  },
+  commitTransaction: (callback) => {
+    callback()
+  },
+  rollbackTransaction: (callback) => {
+    callback()
+  },
 }
 function getConnection() {
   return { ...connection }
@@ -44,6 +43,6 @@ const newSpec = _.defaultsDeep(
 const client = makeClient(newSpec)
 
 module.exports = {
-    newSpec,
-    client
+  newSpec,
+  client,
 }
