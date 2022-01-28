@@ -96,7 +96,7 @@ function applyOnDeleteFilter(filter, queryBuilder) {
 }
 
 function applyFilter(filter, queryBuilder) {
-  if (!queryBuilder?._method) return
+  if (!queryBuilder?._method) return // skipping raw queries
   switch (queryBuilder._method) {
     case 'insert':
       applyOnInsertFilter(filter, queryBuilder)
