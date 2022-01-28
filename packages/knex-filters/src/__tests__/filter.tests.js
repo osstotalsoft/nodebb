@@ -579,4 +579,25 @@ describe('filter tests', () => {
       expect.anything(),
     )
   })
+
+  test('raw does not break the filter', async () => {
+    //arrange
+    var knexInstance = knex({
+      client: 'mssql',
+    })
+    mockDb.mock(knexInstance)
+
+    const hooks = {
+      onSelect: jest.fn(),
+    }
+    const filter = jest.fn(() => hooks)
+    registerFilter(filter, knexInstance)
+
+    //act
+    await knexInstance.raw("select 'test'")
+
+    //assert
+    expect(filter).not.toHaveBeenCalled()
+    expect(hooks.onSelect).not.toHaveBeenCalled()
+  })
 })

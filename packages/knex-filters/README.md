@@ -9,6 +9,8 @@ npm install @totalsoft/knex-filters
 ## philosophy
 With knex-filters you can register some hooks for some or any of your tables, that will be called when specific DDL statements occur: select, insert, update, delete.
 
+> ⚠ Because of the nature of `knex.raw(...)` no filter will apply on these statements.
+
 ## filter
 A filter is a function that receives a table and returns the hooks
 ```javascript
