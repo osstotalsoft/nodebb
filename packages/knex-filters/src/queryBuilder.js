@@ -96,6 +96,7 @@ function applyOnDeleteFilter(filter, queryBuilder) {
 }
 
 function applyFilter(filter, queryBuilder) {
+  if (!queryBuilder?._method) return
   switch (queryBuilder._method) {
     case 'insert':
       applyOnInsertFilter(filter, queryBuilder)
