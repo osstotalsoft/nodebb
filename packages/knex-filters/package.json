@@ -1,6 +1,6 @@
 {
   "name": "@totalsoft/knex-filters",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "Knex global query filters",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
