@@ -188,7 +188,7 @@ function wrapSubscription(natsSubscription) {
   sub.unsubscribe = function unsubscribe() {
     return timeout(
       new Promise((resolve, reject) => {
-        natsSubscription.on('unsubscribed', () => {
+        natsSubscription.on('closed', () => {
           resolve()
         })
         natsSubscription.on('error', (err) => {
