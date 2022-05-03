@@ -126,7 +126,7 @@ function _messageBus(transport, serDes) {
     subscribe,
     sendCommandAndReceiveEvent,
     transport,
-    serDes,
+    serDes
   }
 }
 
@@ -137,5 +137,5 @@ function messageBus() {
 module.exports = {
   messageBus,
   useTransport,
-  useSerDes,
+  useSerDes
 }
