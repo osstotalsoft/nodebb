@@ -112,7 +112,11 @@ function _messageBus(transport, serDes) {
       return result
     } finally {
       for (const subscription of subscriptions) {
-        subscription.unsubscribe().catch(err => {`Unsubscribe failed! The following error was encountered: ${err}`})
+        subscription.unsubscribe().catch((err) => {
+          console.error(
+            `Unsubscribe failed! The following error was encountered: ${err}`,
+          )
+        })
       }
     }
   }
@@ -122,7 +126,7 @@ function _messageBus(transport, serDes) {
     subscribe,
     sendCommandAndReceiveEvent,
     transport,
-    serDes
+    serDes,
   }
 }
 
@@ -133,5 +137,5 @@ function messageBus() {
 module.exports = {
   messageBus,
   useTransport,
-  useSerDes
+  useSerDes,
 }
