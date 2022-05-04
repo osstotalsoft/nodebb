@@ -112,7 +112,11 @@ function _messageBus(transport, serDes) {
       return result
     } finally {
       for (const subscription of subscriptions) {
-        subscription.unsubscribe()
+        subscription.unsubscribe().catch((err) => {
+          console.error(
+            `Unsubscribe failed! The following error was encountered: ${err}`,
+          )
+        })
       }
     }
   }
