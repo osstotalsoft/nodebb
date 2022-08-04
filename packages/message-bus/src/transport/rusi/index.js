@@ -178,8 +178,8 @@ async function subscribe(subject, handler, opts, serDes) {
     )
   })
 
-  const result = wrapSubscription(call)
-  return result
+  const sub = rusiSubscription(call)
+  return sub
 }
 
 function toUTF8Array(str) {
@@ -258,7 +258,7 @@ function fromUTF8Array(data) {
   return str
 }
 
-function wrapSubscription(call) {
+function rusiSubscription(call) {
   const sub = new EventEmitter()
   sub.on('removeListener', (event, listener) => {
     call.removeListener(event, listener)
@@ -268,7 +268,7 @@ function wrapSubscription(call) {
   })
 
   sub.unsubscribe = function unsubscribe() {
-    call.end()
+    call.cancel()
     return Promise.resolve()
   }
   sub._call = call

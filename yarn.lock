@@ -2066,7 +2066,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@totalsoft/message-bus@^2.4.2, @totalsoft/message-bus@workspace:packages/message-bus":
+"@totalsoft/message-bus@^2.4.3, @totalsoft/message-bus@workspace:packages/message-bus":
   version: 0.0.0-use.local
   resolution: "@totalsoft/message-bus@workspace:packages/message-bus"
   dependencies:
@@ -2085,7 +2085,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@totalsoft/messaging-host@workspace:packages/messaging-host"
   dependencies:
-    "@totalsoft/message-bus": ^2.4.2
+    "@totalsoft/message-bus": ^2.4.3
     polly-js: ^1.8.2
     ramda: ^0.27.0
     uuid: ^8.3.0
