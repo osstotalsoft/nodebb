@@ -2,7 +2,7 @@
 // This source code is licensed under the MIT license.
 
 const subscription = {
-  unsubscribe: jest.fn(),
+  unsubscribe: jest.fn().mockResolvedValue(),
   on: jest.fn(),
 }
 
@@ -34,10 +34,10 @@ mock.__mockSubscriptionOnce_YieldsNoMsg = () => {
 }
 
 mock.__resetMocks = () => {
-  mock.publish.mockReset()
+  mock.publish.mockClear()
   mock.subscribe.mockReset()
-  subscription.unsubscribe.mockReset()
-  subscription.on.mockReset()
+  subscription.unsubscribe.mockClear()
+  subscription.on.mockClear()
 }
 
 module.exports = mock

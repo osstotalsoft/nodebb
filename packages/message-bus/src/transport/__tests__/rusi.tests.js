@@ -104,6 +104,6 @@ describe('rusi tests', () => {
     await sub.unsubscribe()
 
     //assert
-    expect(sub._call.end).toHaveBeenCalled()
+    expect(sub._call.cancel).toHaveBeenCalled()
   })
 })
