@@ -1612,6 +1612,19 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
   integrity sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==
 
+"@totalsoft/message-bus@^2.4.5":
+  version "2.4.5"
+  resolved "https://registry.yarnpkg.com/@totalsoft/message-bus/-/message-bus-2.4.5.tgz#e48839bb472cd00125b16d3e24778da6a933f681"
+  integrity sha512-dEvsfT4Q8fU1g/NJAHa6LKd1N9UhOJkL8jLPQ1bTm4xONFCPTzJVdwz47+9JeMzS7pUsu0jK/Of/uGbsNgUWIA==
+  dependencies:
+    "@grpc/grpc-js" "^1.4.1"
+    "@grpc/proto-loader" "^0.6.5"
+    async-mutex "^0.3.1"
+    bluebird "3.7.2"
+    humps "^2.0.1"
+    node-nats-streaming "0.3.2"
+    uuid "^8.3.0"
+
 "@types/babel__core@^7.0.0", "@types/babel__core@^7.1.7":
   version "7.1.19"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.1.19.tgz#7b497495b7d1b4812bdb9d02804d0576f43ee460"
@@ -3007,11 +3020,6 @@ dot-prop@^6.0.1:
   integrity sha512-tE7ztYzXHIeyvc7N+hR3oi7FIbf/NIjVP9hmAt3yMXzrQ072/fpjGLx2GxNxGxUl5V73MEqYzioOMoVhGMJ5cA==
   dependencies:
     is-obj "^2.0.0"
-
-dotenv@^10.0.0:
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-10.0.0.tgz#3d4227b8fb95f81096cdd2b66653fb2c7085ba81"
-  integrity sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==
 
 dts-critic@latest:
   version "3.3.11"
