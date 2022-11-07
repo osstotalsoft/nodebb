@@ -74,7 +74,7 @@ messagingHost()
     ...
     .start()
 ```
-As the messaging host calls under the hood the package *@totalsoft/message-bus* for the subscription part, you can read more about the type of messaging subscriptions [here](https://github.com/osstotalsoft/nodebb/tree/master/packages/message-bus#subscribe)
+As the messaging host calls under the hood the package *@totalsoft/message-bus* for the subscription part, you can read more about the type of messaging subscriptions [here](https://github.com/osstotalsoft/rocket-toolkit/tree/main/packages/message-bus#subscribe)
 
 ## middleware func
 You can customize the message processing pipeline by hooking up your own middleware funcs.
