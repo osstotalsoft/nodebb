@@ -1,6 +1,6 @@
 {
   "name": "@totalsoft/messaging-host",
-  "version": "2.4.5",
+  "version": "2.5.0",
   "description": "Opinionated, provider independent, messaging patterns",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
