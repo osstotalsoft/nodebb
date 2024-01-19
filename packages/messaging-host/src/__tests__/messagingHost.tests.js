@@ -127,6 +127,32 @@ describe('MessagingHost tests', () => {
     })
 
     //assert
-    expect(msgHost._messageBus.transport.connect).toHaveBeenCalledTimes(2)
+    expect(
+      msgHost._messageBus.transport.connect,
+    ).toHaveBeenCalledTimes(2)
+  })
+
+  test('isRunning returns true when the messaging host is started', async () => {
+    const msgHost = messagingHost().subscribe(['topic'])
+
+    // Act
+    await msgHost.start()
+
+    // Assert
+    expect(msgHost.isRunning()).toBe(true)
+
+    // Teardown: Stop the messaging host.
+    await msgHost.stop()
+  })
+
+  test('isRunning returns false when the messaging host is stopped', async () => {
+    const msgHost = messagingHost().subscribe(['topic'])
+
+    // Act: Ensure the messaging host is stopped.
+    await msgHost.start()
+    await msgHost.stop()
+
+    // Assert
+    expect(msgHost.isRunning()).toBe(false)
   })
 })

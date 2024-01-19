@@ -12,6 +12,10 @@ const {
 } = process.env
 
 function messagingHost() {
+  let _isStarted = false
+  let _isStarting = false
+  let _isStopping = false
+
   let subscriptionOptions = {}
   let pipeline = empty
   let msgBus = messageBus()
@@ -46,25 +50,31 @@ function messagingHost() {
   }
 
   async function _start({ count }) {
-    const action = count == 0 ? 'starting' : `re-starting(${count})`
-    console.info(`Messaging Host is ${action}...`)
-    msgHost.emit('starting', { count })
+    _isStarting = true
+    try {
+      const action = count == 0 ? 'starting' : `re-starting(${count})`
+      console.info(`Messaging Host is ${action}...`)
+      msgHost.emit('starting', { count })
 
-    connection = await msgBus.transport.connect()
-    connection.on('error', connectionErrorHandler)
-    connection.on('close', connectionErrorHandler)
+      connection = await msgBus.transport.connect()
+      connection.on('error', connectionErrorHandler)
+      connection.on('close', connectionErrorHandler)
 
-    const subs = Object.entries(subscriptionOptions).map(
-      ([topic, opts]) =>
-        msgBus.subscribe(
-          topic,
-          (msg) => run(pipeline, _contextFactory(topic, msg)),
-          opts,
-        ),
-    )
-    subscriptions = await Promise.all(subs)
-    console.info(`🚀  Messaging host ready`)
-    msgHost.emit('started', { count })
+      const subs = Object.entries(subscriptionOptions).map(
+        ([topic, opts]) =>
+          msgBus.subscribe(
+            topic,
+            (msg) => run(pipeline, _contextFactory(topic, msg)),
+            opts,
+          ),
+      )
+      subscriptions = await Promise.all(subs)
+      console.info(`🚀  Messaging host ready`)
+      msgHost.emit('started', { count })
+      _isStarted = true
+    } finally {
+      _isStarting = false
+    }
     return this
   }
 
@@ -78,22 +88,32 @@ function messagingHost() {
   }
 
   async function stop() {
-    console.info('Messaging Host is shutting down...')
-    msgHost.emit('stopping')
+    _isStopping = true
+    try {
+      console.info('Messaging Host is shutting down...')
+      msgHost.emit('stopping')
 
-    if (connection) {
-      connection.removeListener('error', connectionErrorHandler)
-      connection.removeListener('close', connectionErrorHandler)
+      if (connection) {
+        connection.removeListener('error', connectionErrorHandler)
+        connection.removeListener('close', connectionErrorHandler)
+      }
+
+      await Promise.allSettled(
+        subscriptions.map((subscription) =>
+          subscription.unsubscribe(),
+        ),
+      )
+      await msgBus.transport.disconnect()
+      msgHost.emit('stopped')
+      _isStarted = false
+    } finally {
+      _isStopping = false
     }
-
-    await Promise.allSettled(
-      subscriptions.map((subscription) => subscription.unsubscribe()),
-    )
-    await msgBus.transport.disconnect()
-    msgHost.emit('stopped')
   }
 
   function stopImmediate() {
+    _isStopping = true
+
     console.info('Messaging Host is shutting down...')
     if (connection) {
       connection.removeListener('error', connectionErrorHandler)
@@ -101,12 +121,18 @@ function messagingHost() {
     }
     try {
       subscriptions.forEach((subscription) => {
-        subscription.unsubscribe()
+        subscription.unsubscribe() // we don't wait for the promise to resolve
       })
-      msgBus.transport.disconnect()
+      msgBus.transport.disconnect() // we don't wait for the promise to resolve
     } catch {
       //there is nothing we can do
     }
+    _isStarted = false
+    _isStopping = false
+  }
+
+  function isRunning(){
+    return _isStarted && !_isStarting && !_isStopping
   }
 
   function _contextFactory(topic, msg) {
@@ -120,6 +146,7 @@ function messagingHost() {
     start,
     stop,
     stopImmediate,
+    isRunning,
     _contextFactory,
     _messageBus: msgBus,
   })
@@ -128,6 +155,7 @@ function messagingHost() {
 }
 
 const connectionErrorStrategy = {
+  
   throw: function throwOnConnectionError() {
     throw new Error('Messaging Host transport connection failure!')
   },
