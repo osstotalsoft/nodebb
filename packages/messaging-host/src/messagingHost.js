@@ -183,8 +183,8 @@ const errorStrategy = {
   none: function noneStrategy(_err, _cn, _msgHost) {
     // do nothing
   },
-  throw: function throwStrategy(_err, _cn, _msgHost) {
-    throw new Error('Messaging Host transport connection failure!')
+  throw: function throwStrategy(err, _cn, _msgHost) {
+    throw new Error(`Messaging Host failure: ${err?.message ?? err}`)
   },
   retry: function retryStrategy(_err, _cn, msgHost) {
     msgHost
@@ -194,9 +194,7 @@ const errorStrategy = {
       .catch((err) => {
         console.error(err)
         setImmediate(() => {
-          throw new Error(
-            'Messaging Host transport connection failure!',
-          )
+          throw new Error(`Messaging Host failure: ${err?.message ?? err}`)
         })
       })
   },

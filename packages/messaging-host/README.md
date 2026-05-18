@@ -163,12 +163,12 @@ The messaging host provides three builtin connection error strategies:
  - throw: throws an error
  - none: ignores the error (use when you handle errors yourself via a custom handler)
 
-You can set one or the other by invoking `onConnectionError` on a messaging host instance, or globally, by setting the env variable `Messaging__Host__ConnectionErrorStrategy`. By default it uses the `connectionErrorStrategy.retry` handler.
+You can set one or the other by invoking `onConnectionError` on a messaging host instance, or globally, by setting the env variable `Messaging__Host__ConnectionErrorStrategy`. By default it uses the `errorStrategy.retry` handler.
 
 ```javascript
-const { messagingHost, connectionErrorStrategy } = require("@totalsoft/messaging-host")
+const { messagingHost, errorStrategy } = require("@totalsoft/messaging-host")
 messagingHost()
-    .onConnectionError(connectionErrorStrategy.retry)
+    .onConnectionError(errorStrategy.retry)
 ```
 
 ## subscription error handler
