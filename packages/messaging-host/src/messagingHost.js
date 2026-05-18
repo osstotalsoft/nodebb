@@ -20,7 +20,7 @@ function messagingHost() {
   let subscriptionOptions = {}
   let pipeline = empty
   let msgBus = messageBus()
-  let subscriptions = null
+  let subscriptions = []
   let connection = null
   let msgHost = null
   let connectionErrorHandler = function connectionErrorHandler(err) {
