@@ -4,7 +4,8 @@
 -->
 
 # messaging-host
-Infrastructure for event-driven stream processing microservices
+Infrastructure for event-driven stream processing microservices.
+
 
 ## installation
 ```javascript
