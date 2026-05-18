@@ -105,4 +105,4 @@ dist
 
 #yarn
 .yarn/
-.yarnrc.yml
+.yarnrc.ymlpackage-lock.json
