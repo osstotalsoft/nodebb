@@ -29,10 +29,20 @@ yarn lerna run tslint
 
 ## Publish
 
+```
+npm set //registry.npmjs.org/:_authToken=<your-granular-token>
+```
+
 ```javascript
-yarn lerna publish patch
-yarn lerna publish minor
-yarn lerna publish major
+yarn lerna publish patch -- --no-verify-access
+yarn lerna publish minor -- --no-verify-access
+yarn lerna publish major -- --no-verify-access
+```
+
+When npm push fails:
+```
+git push origin --delete v2.5.1; git tag -d v2.5.1; git revert HEAD --no-edit; git push
+
 ```
 
 ## License
