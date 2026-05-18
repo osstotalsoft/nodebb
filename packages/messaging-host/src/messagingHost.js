@@ -8,6 +8,7 @@ const EventEmitter = require('events')
 
 const {
   Messaging__Host__ConnectionErrorStrategy,
+  Messaging__Host__SubscriptionErrorStrategy,
   Messaging__Host__StartRetryCount,
 } = process.env
 
@@ -19,14 +20,22 @@ function messagingHost() {
   let subscriptionOptions = {}
   let pipeline = empty
   let msgBus = messageBus()
-  let subscriptions = null
+  let subscriptions = []
   let connection = null
   let msgHost = null
   let connectionErrorHandler = function connectionErrorHandler(err) {
     const h =
-      connectionErrorStrategy[
+      errorStrategy[
         Messaging__Host__ConnectionErrorStrategy
-      ] || connectionErrorStrategy.retry
+      ] || errorStrategy.retry
+    h(err, connection, msgHost)
+  }
+
+  let subscriptionErrorHandler = function subscriptionErrorHandler(err) {
+    const h =
+      errorStrategy[
+        Messaging__Host__SubscriptionErrorStrategy
+      ] || errorStrategy.retry
     h(err, connection, msgHost)
   }
 
@@ -44,6 +53,13 @@ function messagingHost() {
 
   function onConnectionError(handler) {
     connectionErrorHandler = function connectionErrorHandler(err) {
+      handler(err, connection, msgHost)
+    }
+    return this
+  }
+
+  function onSubscriptionError(handler) {
+    subscriptionErrorHandler = function subscriptionErrorHandler(err) {
       handler(err, connection, msgHost)
     }
     return this
@@ -69,6 +85,9 @@ function messagingHost() {
           ),
       )
       subscriptions = await Promise.all(subs)
+      subscriptions.forEach((sub) => {
+        sub.on('error', subscriptionErrorHandler)
+      })
       console.info(`🚀  Messaging host ready`)
       msgHost.emit('started', { count })
       _isStarted = true
@@ -98,6 +117,9 @@ function messagingHost() {
         connection.removeListener('close', connectionErrorHandler)
       }
 
+      subscriptions.forEach((sub) => {
+        sub.removeListener('error', subscriptionErrorHandler)
+      })
       await Promise.allSettled(
         subscriptions.map((subscription) =>
           subscription.unsubscribe(),
@@ -120,8 +142,9 @@ function messagingHost() {
       connection.removeListener('close', connectionErrorHandler)
     }
     try {
-      subscriptions.forEach((subscription) => {
-        subscription.unsubscribe() // we don't wait for the promise to resolve
+      subscriptions.forEach((sub) => {
+        sub.removeListener('error', subscriptionErrorHandler)
+        sub.unsubscribe() // we don't wait for the promise to resolve
       })
       msgBus.transport.disconnect() // we don't wait for the promise to resolve
     } catch {
@@ -143,6 +166,7 @@ function messagingHost() {
     use,
     subscribe,
     onConnectionError,
+    onSubscriptionError,
     start,
     stop,
     stopImmediate,
@@ -154,12 +178,15 @@ function messagingHost() {
   return msgHost
 }
 
-const connectionErrorStrategy = {
+const errorStrategy = {
   
-  throw: function throwOnConnectionError() {
-    throw new Error('Messaging Host transport connection failure!')
+  none: function noneStrategy(_err, _cn, _msgHost) {
+    // do nothing
   },
-  retry: function retryOnConnectionError(_err, _cn, msgHost) {
+  throw: function throwStrategy(err, _cn, _msgHost) {
+    throw new Error(`Messaging Host failure: ${err?.message ?? err}`)
+  },
+  retry: function retryStrategy(_err, _cn, msgHost) {
     msgHost
       .stop()
       .catch(console.error)
@@ -167,12 +194,10 @@ const connectionErrorStrategy = {
       .catch((err) => {
         console.error(err)
         setImmediate(() => {
-          throw new Error(
-            'Messaging Host transport connection failure!',
-          )
+          throw new Error(`Messaging Host failure: ${err?.message ?? err}`)
         })
       })
   },
 }
 
-module.exports = { messagingHost, connectionErrorStrategy }
+module.exports = { messagingHost, errorStrategy }

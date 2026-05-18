@@ -13,9 +13,10 @@ mock.messageBus = jest.fn(() => {
     return subscriptionMock
   }
 
+  const defaultSubscriptionMock = makeSubscriptionMock()
   const messageBusMock = {
     publish: jest.fn(),
-    subscribe: jest.fn().mockResolvedValue(makeSubscriptionMock()),
+    subscribe: jest.fn().mockResolvedValue(defaultSubscriptionMock),
     sendCommandAndReceiveEvent: jest.fn(),
     transport: {
       connect: jest.fn().mockResolvedValue(connectionMock),
@@ -55,6 +56,11 @@ mock.messageBus = jest.fn(() => {
   messageBusMock.__emitConnectionError = (err) => {
     const connectionError = err || new Error('Connection error')
     connectionMock.emit('error', connectionError)
+  }
+
+  messageBusMock.__emitSubscriptionError = (err) => {
+    const subscriptionError = err || new Error('Subscription error')
+    defaultSubscriptionMock.emit('error', subscriptionError)
   }
 
   messageBusMock.__clearMocks = () => {

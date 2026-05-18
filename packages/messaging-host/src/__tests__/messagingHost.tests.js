@@ -155,4 +155,53 @@ describe('MessagingHost tests', () => {
     // Assert
     expect(msgHost.isRunning()).toBe(false)
   })
+
+  test('subscription error handler', async () => {
+    //arrange
+    const subscriptionErrorHandler = jest.fn()
+    const msgHost = messagingHost()
+      .onSubscriptionError(subscriptionErrorHandler)
+      .subscribe(['topic'])
+
+    //act
+    await msgHost.start()
+    msgHost._messageBus.__emitSubscriptionError()
+
+    //assert
+    expect(subscriptionErrorHandler).toHaveBeenCalled()
+  })
+
+  test('subscription error retries', async () => {
+    //arrange
+    const msgHost = messagingHost().subscribe(['topic'])
+
+    //act
+    await msgHost.start()
+
+    msgHost._messageBus.__emitSubscriptionError()
+    await new Promise((resolve) => {
+      msgHost.on('starting', resolve)
+    })
+
+    //assert
+    expect(msgHost._messageBus.transport.connect).toHaveBeenCalledTimes(2)
+  })
+
+  test('stop removes subscription error listener', async () => {
+    //arrange
+    const subscriptionErrorHandler = jest.fn()
+    const msgHost = messagingHost()
+      .onSubscriptionError(subscriptionErrorHandler)
+      .subscribe(['topic'])
+
+    //act
+    await msgHost.start()
+    await msgHost.stop()
+    // After stop, no 'error' listeners remain on the subscription.
+    // Node.js EventEmitter throws when emitting 'error' with no listeners — that's expected.
+    try { msgHost._messageBus.__emitSubscriptionError() } catch { /* expected */ }
+
+    //assert
+    expect(subscriptionErrorHandler).not.toHaveBeenCalled()
+  })
 })
