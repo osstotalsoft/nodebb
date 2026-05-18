@@ -180,9 +180,9 @@ You can override the handler using `onSubscriptionError`:
  - none: ignores the error
 
 ```javascript
-const { messagingHost, connectionErrorStrategy } = require("@totalsoft/messaging-host")
+const { messagingHost, errorStrategy } = require("@totalsoft/messaging-host")
 messagingHost()
-    .onSubscriptionError(connectionErrorStrategy.retry)
+    .onSubscriptionError(errorStrategy.retry)
 ```
 
 You can also supply a custom handler:
