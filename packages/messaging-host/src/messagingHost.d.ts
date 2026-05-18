@@ -42,7 +42,16 @@ export type MessagingHost = {
    * @returns The messaging host instance.
    */
   onConnectionError: (
-    handler: ConnectionErrorStrategy,
+    handler: ErrorStrategy,
+  ) => MessagingHost
+
+  /**
+   * Sets the handler for subscription-level errors (e.g. stream closed by the transport sidecar).
+   * @param handler - The error strategy.
+   * @returns The messaging host instance.
+   */
+  onSubscriptionError: (
+    handler: ErrorStrategy,
   ) => MessagingHost
 
   /**
@@ -78,13 +87,14 @@ export type MessagingHostContext = {
 
 export function messagingHost(): MessagingHost
 
-export type ConnectionErrorStrategy = (
+export type ErrorStrategy = (
   err: Error,
   cn: transport.Connection,
   msgHost: MessagingHost,
 ) => void
-export interface ConnectionErrorStrategies {
-  throw: ConnectionErrorStrategy
-  retry: ConnectionErrorStrategy
+export interface ErrorStrategies {
+  none: ErrorStrategy
+  throw: ErrorStrategy
+  retry: ErrorStrategy
 }
-export const connectionErrorStrategy: ConnectionErrorStrategies
+export const errorStrategy: ErrorStrategies

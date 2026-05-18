@@ -158,9 +158,10 @@ messagingHost()
 ```
 
 ## connection error handler
-The messaging host provides two builtin connection error strategies:
- - retry: tries to restart the messaging host for 10 times before throwing an error. You can set the number of retries by setting the `Messaging__Host__StartRetryCount` environment variable
+The messaging host provides three builtin connection error strategies:
+ - retry (default): tries to restart the messaging host for 10 times before throwing an error. You can set the number of retries by setting the `Messaging__Host__StartRetryCount` environment variable
  - throw: throws an error
+ - none: ignores the error (use when you handle errors yourself via a custom handler)
 
 You can set one or the other by invoking `onConnectionError` on a messaging host instance, or globally, by setting the env variable `Messaging__Host__ConnectionErrorStrategy`. By default it uses the `connectionErrorStrategy.retry` handler.
 
@@ -169,6 +170,31 @@ const { messagingHost, connectionErrorStrategy } = require("@totalsoft/messaging
 messagingHost()
     .onConnectionError(connectionErrorStrategy.retry)
 ```
+
+## subscription error handler
+Individual subscription streams can fail independently of the transport connection (e.g. a sidecar such as rusi returns a stream-level error like `stan: subscribe request timeout`). The messaging host detects these errors and applies the same strategy as connection errors by default.
+
+You can override the handler using `onSubscriptionError`:
+ - retry (default): stops and restarts the messaging host, re-establishing all subscriptions
+ - throw: throws an error
+ - none: ignores the error
+
+```javascript
+const { messagingHost, connectionErrorStrategy } = require("@totalsoft/messaging-host")
+messagingHost()
+    .onSubscriptionError(connectionErrorStrategy.retry)
+```
+
+You can also supply a custom handler:
+```javascript
+messagingHost()
+    .onSubscriptionError((err, _connection, msgHost) => {
+        console.error('Subscription error, restarting...', err)
+        msgHost.stop().then(msgHost.start)
+    })
+```
+
+The global `Messaging__Host__SubscriptionErrorStrategy` environment variable governs the default for subscription errors (falls back to `retry` if not set). The `Messaging__Host__ConnectionErrorStrategy` variable governs connection errors independently.
 
 
 
